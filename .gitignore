@@ -1,0 +1,34 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+[Bb]in/
+[Oo]bj/
+
+# Debug
+*.pdb
+
+# VS Code
+.vscode/
+
+# Test
+TestResults/
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# Temporary
+*.tmp
+*.temp
+
+# OS
+Thumbs.db
+.DS_Store

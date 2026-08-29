@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37614.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.Inv25", "Inventor\V2025\QTCAD.Inv25\QTCAD.Inv25.csproj", "{48A14A69-4EAB-4393-A879-323831F32573}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.Common", "QTCAD.Common\QTCAD.Common.csproj", "{24A8D848-44DD-43B6-984F-060993A7F006}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.API", "QTCAD.API\QTCAD.API.csproj", "{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{48A14A69-4EAB-4393-A879-323831F32573}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48A14A69-4EAB-4393-A879-323831F32573}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48A14A69-4EAB-4393-A879-323831F32573}.Debug|x64.ActiveCfg = Debug|x64
+		{48A14A69-4EAB-4393-A879-323831F32573}.Debug|x64.Build.0 = Debug|x64
+		{48A14A69-4EAB-4393-A879-323831F32573}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48A14A69-4EAB-4393-A879-323831F32573}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48A14A69-4EAB-4393-A879-323831F32573}.Release|x64.ActiveCfg = Release|x64
+		{48A14A69-4EAB-4393-A879-323831F32573}.Release|x64.Build.0 = Release|x64
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Debug|x64.ActiveCfg = Debug|x64
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Debug|x64.Build.0 = Debug|x64
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Release|x64.ActiveCfg = Release|x64
+		{24A8D848-44DD-43B6-984F-060993A7F006}.Release|x64.Build.0 = Release|x64
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Debug|x64.ActiveCfg = Debug|x64
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Debug|x64.Build.0 = Debug|x64
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|x64.ActiveCfg = Release|x64
+		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C5CB435B-D030-4459-8708-323E4E9934F0}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>QTCAD.Inv25</RootNamespace>
+    <AssemblyName>QTCAD.Inv25</AssemblyName>
+    <Platforms>x64</Platforms>
+    <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="StandardAddInServer.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Test.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Properties\launchSettings.json" />
+    <None Include="QTCAD.Inv25.X.manifest" />
+    <None Include="QTCAD.Inv25.addin" />
+    <None Include="Readme.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\QTCAD.API\QTCAD.API.csproj" />
+    <ProjectReference Include="..\..\..\QTCAD.Common\QTCAD.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Autodesk.Inventor.Interop">
+      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll')">$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe&quot; -manifest &quot;$(ProjectDir)QTCAD.Inv25.X.manifest&quot; -outputresource:&quot;$(TargetPath)&quot;;#2" />
+  </Target>
+
+</Project>
