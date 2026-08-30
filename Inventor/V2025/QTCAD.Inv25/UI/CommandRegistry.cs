@@ -15,11 +15,11 @@ namespace QTCAD.Inv25.UI
         {
             DocumentService documentService = new DocumentService(context);
             PropertyService propertyService = new PropertyService(context);
-
+            ModelGeometryService geometryService = new ModelGeometryService(context);
             Register(new TestCommand(documentService));
             Register(new DocumentValidationCommand(documentService)); 
             Register(new PropertyCommand(propertyService));
-
+            Register(new GeometryAnalysisCommand(geometryService));
         }
 
         private void Register(ICommand command)

@@ -12,7 +12,7 @@ namespace QTCAD.Inv25.UI
         private ButtonDefinition? _documentValidationButton;
         private ButtonDefinition? _testButton;
         private ButtonDefinition? _propertyButton;
-
+        private ButtonDefinition? _geometryAnalysisButton;
         public RibbonManager(InventorContext context)
         {
             _context = context;
@@ -26,22 +26,17 @@ namespace QTCAD.Inv25.UI
             ICommand testCommand = _commands.Get("QTCAD.Test");
             ICommand documentValidationCommand = _commands.Get("QTCAD.DocumentValidation");
             ICommand propertyCommand = _commands.Get("QTCAD.Properties");
+            ICommand geometryAnalysisCommand = _commands.Get("QTCAD.GeometryAnalysis");
 
-            _testButton = GetOrCreateButtonDefinition(
-                commandManager,
-                testCommand);
-
-            _documentValidationButton = GetOrCreateButtonDefinition(
-                commandManager,
-                documentValidationCommand);
-
-            _propertyButton = GetOrCreateButtonDefinition(
-                commandManager,
-                propertyCommand);
+            _testButton = GetOrCreateButtonDefinition(commandManager, testCommand);
+            _documentValidationButton = GetOrCreateButtonDefinition(commandManager, documentValidationCommand);
+            _propertyButton = GetOrCreateButtonDefinition( commandManager, propertyCommand);
+            _geometryAnalysisButton = GetOrCreateButtonDefinition(commandManager, geometryAnalysisCommand);
 
             _testButton.OnExecute += TestButton_OnExecute;
             _documentValidationButton.OnExecute += DocumentValidationButton_OnExecute;
             _propertyButton.OnExecute += PropertyButton_OnExecute;
+            _geometryAnalysisButton.OnExecute += GeometryAnalysisButton_OnExecute;  
 
             CreateRibbon(RibbonEnvironment.Part);
             CreateRibbon(RibbonEnvironment.Assembly);
@@ -93,6 +88,10 @@ namespace QTCAD.Inv25.UI
             if (!CommandControlExists(panel, _propertyButton))
             {
                 panel.CommandControls.AddButton(_propertyButton, true);
+            }
+            if (!CommandControlExists(panel, _geometryAnalysisButton))
+            {
+                panel.CommandControls.AddButton(_geometryAnalysisButton, true);
             }
         }
 
@@ -151,6 +150,10 @@ namespace QTCAD.Inv25.UI
             _commands.Get("QTCAD.Properties").Execute();
         }
 
+        private void GeometryAnalysisButton_OnExecute(NameValueMap context)
+        {
+            _commands.Get("QTCAD.GeometryAnalysis").Execute();
+        }
         public void Dispose()
         {
             if (_testButton != null)
@@ -164,6 +167,10 @@ namespace QTCAD.Inv25.UI
             if (_propertyButton != null)
             {
                 _propertyButton.OnExecute -= PropertyButton_OnExecute;
+            }
+            if (_geometryAnalysisButton != null)
+            {
+                _geometryAnalysisButton.OnExecute -= GeometryAnalysisButton_OnExecute;
             }
         }
     }

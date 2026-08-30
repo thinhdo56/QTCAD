@@ -4,13 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QTCAD.Inv25.UI
+namespace QTCAD.Inv25.Services
 {
-    internal enum RibbonEnvironment
+    internal class AssemblyGeometryService
     {
-        Part,
-        Assembly,
-        Drawing
     }
 }
- 

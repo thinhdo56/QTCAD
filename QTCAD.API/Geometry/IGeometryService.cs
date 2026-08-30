@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QTCAD.Inv25.UI
+namespace QTCAD.API.Geometry
 {
-    internal enum RibbonEnvironment
+    public interface IGeometryService
     {
-        Part,
-        Assembly,
-        Drawing
+        ModelGeometryInfo? Analyze();
     }
 }
- 

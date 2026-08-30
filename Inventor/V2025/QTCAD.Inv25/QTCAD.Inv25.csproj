@@ -27,9 +27,14 @@
   <ItemGroup>
     <Compile Include="Adapter\InventorContext.cs" />
     <Compile Include="Commands\DocumentValidationCommand.cs" />
+    <Compile Include="Commands\GeometryAnalysisCommand.cs" />
     <Compile Include="Commands\PropertyCommand.cs" />
     <Compile Include="Commands\TestCommand.cs" />
+    <Compile Include="Geometry\FaceFilter.cs" />
+    <Compile Include="Geometry\IFaceFilter.cs" />
+    <Compile Include="Services\AssemblyGeometryService.cs" />
     <Compile Include="Services\DocumentService.cs" />
+    <Compile Include="Services\ModelGeometryService.cs" />
     <Compile Include="Services\PropertyService.cs" />
     <Compile Include="StandardAddInServer.cs" />
     <Compile Include="AssemblyInfo.cs" />
