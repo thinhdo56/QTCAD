@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <OutputType>Library</OutputType>
     <RootNamespace>QTCAD.Inv25</RootNamespace>
     <AssemblyName>QTCAD.Inv25</AssemblyName>
@@ -24,9 +25,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Adapter\InventorContext.cs" />
+    <Compile Include="Commands\DocumentValidationCommand.cs" />
+    <Compile Include="Commands\PropertyCommand.cs" />
+    <Compile Include="Commands\TestCommand.cs" />
+    <Compile Include="Services\DocumentService.cs" />
+    <Compile Include="Services\PropertyService.cs" />
     <Compile Include="StandardAddInServer.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Test.cs" />
+    <Compile Include="UI\CommandRegistry.cs" />
+    <Compile Include="UI\RibbonEnvironment.cs" />
+    <Compile Include="UI\RibbonEnvironmentExtensions.cs" />
+    <Compile Include="UI\RibbonManager.cs" />
   </ItemGroup>
 
   <ItemGroup>

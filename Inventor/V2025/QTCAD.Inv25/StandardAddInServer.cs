@@ -1,6 +1,8 @@
 using Inventor;
 using Microsoft.Win32;
 using QTCAD.Common.Inventor;
+using QTCAD.Inv25.Adapter;
+using QTCAD.Inv25.UI;
 using System;
 using System.Runtime.InteropServices;
 
@@ -14,7 +16,8 @@ namespace QTCAD.Inv25
     [GuidAttribute("1c742ff2-487f-488b-9a86-6dcd4985f770")]
     public class StandardAddInServer : Inventor.ApplicationAddInServer
     {
-
+        private InventorContext? m_context;
+        private RibbonManager? m_ribbonManager;
         // Inventor application object.
         private Inventor.Application? m_inventorApplication;
 
@@ -32,6 +35,10 @@ namespace QTCAD.Inv25
 
             // Initialize AddIn members.
             m_inventorApplication = addInSiteObject.Application;
+            m_context = new InventorContext(m_inventorApplication);
+            
+            m_ribbonManager = new RibbonManager(m_context);
+            m_ribbonManager.Initialize();
             // TODO: Add ApplicationAddInServer.Activate implementation.
             // e.g. event initialization, command creation etc.
         }
@@ -45,6 +52,9 @@ namespace QTCAD.Inv25
             // TODO: Add ApplicationAddInServer.Deactivate implementation
 
             // Release objects.
+            m_ribbonManager?.Dispose();
+            m_ribbonManager = null;
+            m_context = null;
             m_inventorApplication = null;
 
             GC.Collect();

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using QTCAD.Common.Inventor;
 
-namespace InvAddIn
+namespace QTCAD.Inv25.UI
 {
-    internal class Test
+    internal enum RibbonEnvironment
     {
-
+        Part,
+        Assembly,
+        Drawing
     }
 }
