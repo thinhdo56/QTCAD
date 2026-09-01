@@ -21,7 +21,7 @@ namespace QTCAD.Inv25.Services
 
             if (document is PartDocument partDocument)
             {
-                var result = AnalyzePart(partDocument);
+                var result = AnalyzePartDocument(partDocument);
                 return result;
             }
 
@@ -33,6 +33,15 @@ namespace QTCAD.Inv25.Services
 
             return null;
         }
+        private ModelGeometryInfo? AnalyzePartDocument(PartDocument document)
+        {
+            if (document.ComponentDefinition is SheetMetalComponentDefinition)
+
+            {
+                return AnalyzeSheetMetal(document);
+            }
+            return AnalyzePart(document);
+        }
         private ModelGeometryInfo? AnalyzeAssemblyDocument(AssemblyDocument document)
         {
             if (document.ComponentDefinition is WeldmentComponentDefinition)
@@ -40,9 +49,35 @@ namespace QTCAD.Inv25.Services
             {
                 return AnalyzeWeldment(document);
             }
-                return AnalyzeAssembly(document);
+
+            return AnalyzeAssembly(document);
         }
         private ModelGeometryInfo? AnalyzePart(PartDocument document)
+        {
+            PartComponentDefinition definition = document.ComponentDefinition;
+            Box? rangeBox = definition.RangeBox;
+
+            if (rangeBox == null)
+            {
+                return null;
+            }
+
+            UnitsTypeEnum docUnits = document.UnitsOfMeasure.LengthUnits;
+            string unitSymbol = GetUnitSymbol(document.UnitsOfMeasure.GetStringFromType(docUnits));
+            double xSize = rangeBox.MaxPoint.X - rangeBox.MinPoint.X;
+            double ySize = rangeBox.MaxPoint.Y - rangeBox.MinPoint.Y;
+            double zSize = rangeBox.MaxPoint.Z - rangeBox.MinPoint.Z;
+
+            return new ModelGeometryInfo
+            {
+                XSize = document.UnitsOfMeasure.ConvertUnits(xSize, UnitsTypeEnum.kDatabaseLengthUnits, docUnits),
+                YSize = document.UnitsOfMeasure.ConvertUnits(ySize, UnitsTypeEnum.kDatabaseLengthUnits, docUnits),
+                ZSize = document.UnitsOfMeasure.ConvertUnits(zSize, UnitsTypeEnum.kDatabaseLengthUnits, docUnits),
+                BodyCount = definition.SurfaceBodies.Count,
+                Unit = unitSymbol
+            };
+        }
+        private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)
         {
             PartComponentDefinition definition = document.ComponentDefinition;
             Box? rangeBox = definition.RangeBox;
