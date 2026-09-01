@@ -30,6 +30,7 @@
     <Compile Include="Commands\GeometryAnalysisCommand.cs" />
     <Compile Include="Commands\PropertyCommand.cs" />
     <Compile Include="Commands\TestCommand.cs" />
+    <Compile Include="Geometry\FaceAnalyzer.cs" />
     <Compile Include="Geometry\FaceFilter.cs" />
     <Compile Include="Geometry\IFaceFilter.cs" />
     <Compile Include="Services\AssemblyGeometryService.cs" />

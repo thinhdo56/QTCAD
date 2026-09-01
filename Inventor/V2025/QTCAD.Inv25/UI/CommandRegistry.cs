@@ -2,6 +2,7 @@
 using QTCAD.API.Properties;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Commands;
+using QTCAD.Inv25.Geometry;
 using QTCAD.Inv25.Services;
 using System.Collections.Generic;
 
@@ -15,7 +16,8 @@ namespace QTCAD.Inv25.UI
         {
             DocumentService documentService = new DocumentService(context);
             PropertyService propertyService = new PropertyService(context);
-            ModelGeometryService geometryService = new ModelGeometryService(context);
+            FaceAnalyzer faceAnalyzer = new FaceAnalyzer(context.Application.TransientGeometry);
+            ModelGeometryService geometryService = new ModelGeometryService(context, faceAnalyzer);
             Register(new TestCommand(documentService));
             Register(new DocumentValidationCommand(documentService)); 
             Register(new PropertyCommand(propertyService));
