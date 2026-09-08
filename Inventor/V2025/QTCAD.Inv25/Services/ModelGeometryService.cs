@@ -127,7 +127,6 @@ namespace QTCAD.Inv25.Services
                 Faces = faces ?? []
             };
         }
-
         private string GetUnitSymbol(string unitName)
         {
             return unitName.ToLowerInvariant() switch { "millimeter" => "mm", "centimeter" => "cm", "meter" => "m", "inch" => "in", "foot" => "ft", _ => unitName };

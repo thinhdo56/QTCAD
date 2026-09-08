@@ -30,12 +30,16 @@
     <Compile Include="Commands\GeometryAnalysisCommand.cs" />
     <Compile Include="Commands\PropertyCommand.cs" />
     <Compile Include="Commands\TestCommand.cs" />
+    <Compile Include="Drawing\DrawingService.cs" />
+    <Compile Include="Drawing\DrawingViewService.cs" />
+    <Compile Include="Drawing\StandardView.cs" />
     <Compile Include="Geometry\FaceAnalyzer.cs" />
     <Compile Include="Geometry\FaceFilter.cs" />
     <Compile Include="Geometry\IFaceFilter.cs" />
     <Compile Include="Services\AssemblyGeometryService.cs" />
     <Compile Include="Services\DocumentService.cs" />
     <Compile Include="Services\ModelGeometryService.cs" />
+    <Compile Include="Services\ModelDocumentService.cs" />
     <Compile Include="Services\PropertyService.cs" />
     <Compile Include="StandardAddInServer.cs" />
     <Compile Include="AssemblyInfo.cs" />
