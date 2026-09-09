@@ -2,6 +2,7 @@
 using QTCAD.API.Properties;
 using QTCAD.Inv25.Adapter;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 
 namespace QTCAD.Inv25.Services
 {

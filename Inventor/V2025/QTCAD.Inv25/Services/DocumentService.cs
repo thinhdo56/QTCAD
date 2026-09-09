@@ -1,7 +1,8 @@
-﻿using Inventor;
+﻿    using Inventor;
 using QTCAD.API.Documents;
 using QTCAD.Inv25.Adapter;
 using System.IO;
+using System.Runtime.Versioning;
 
 namespace QTCAD.Inv25.Services
 {

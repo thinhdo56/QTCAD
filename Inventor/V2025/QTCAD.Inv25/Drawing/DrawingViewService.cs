@@ -17,16 +17,21 @@ namespace QTCAD.Inv25.Drawing
             _sheet = document.ActiveSheet;
         }
 
-        public DrawingView CreateBaseView(_Document model, Point2d position, double scale, BaseViewType viewType)
+        public DrawingView CreateBaseView(Document model, Point2d position, double scale, BaseViewType viewType)
         {
             ViewOrientationTypeEnum orientation = StandardView.GetBaseView(viewType);
-            return _sheet.DrawingViews.AddBaseView(model, position, scale, orientation, DrawingViewStyleEnum.kHiddenLineRemovedDrawingViewStyle);
+            return _sheet.DrawingViews.AddBaseView((_Document)model, position, scale, orientation, DrawingViewStyleEnum.kHiddenLineRemovedDrawingViewStyle);
         }
 
-        public DrawingView CreateIsoView(_Document model, Point2d position, double scale, IsoViewType viewType)
+        public DrawingView CreateProjectedView(DrawingView parentView, Point2d position, double scale = 0)
+        {
+            return _sheet.DrawingViews.AddProjectedView(parentView, position, DrawingViewStyleEnum.kFromBaseDrawingViewStyle, scale);
+        }
+
+        public DrawingView CreateIsoView(Document model, Point2d position, double scale, IsoViewType viewType)
         {
             ViewOrientationTypeEnum orientation = StandardView.GetIsoView(viewType);
-            return _sheet.DrawingViews.AddBaseView(model, position, scale, orientation, DrawingViewStyleEnum.kShadedDrawingViewStyle);
+            return _sheet.DrawingViews.AddBaseView((_Document)model, position, scale, orientation, DrawingViewStyleEnum.kShadedDrawingViewStyle);
         }
 
     }

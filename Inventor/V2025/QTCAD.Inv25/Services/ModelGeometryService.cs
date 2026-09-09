@@ -5,6 +5,7 @@ using QTCAD.Inv25.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace QTCAD.Inv25.Services
@@ -75,7 +76,7 @@ namespace QTCAD.Inv25.Services
                 return null;
             }
             string faceInfo = string.Join("\n", faces.Select(f => $"Face {f.Index}: Area={f.Area:F2}, Center=({f.CenterX:F2}, {f.CenterY:F2}, {f.CenterZ:F2}), Normal=({f.NormalX:F4}, {f.NormalY:F4}, {f.NormalZ:F4}), Type={f.Type}"));
-            MessageBox.Show(faceInfo, "Face Analyzer Test");
+            MessageBox.Show(faceInfo, "Face Analyzer Test", MessageBoxButtons.OK, MessageBoxIcon.Information );
             return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
         }
         private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)

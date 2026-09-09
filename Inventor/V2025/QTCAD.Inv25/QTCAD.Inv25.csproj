@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <OutputType>Library</OutputType>
     <RootNamespace>QTCAD.Inv25</RootNamespace>
@@ -12,6 +12,8 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
