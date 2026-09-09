@@ -1,5 +1,4 @@
 ﻿using QTCAD.Inv25.Services;
-using System.Runtime.Versioning;
 using System.Windows.Forms;
 using QTCAD.API.Commands;
 
@@ -16,7 +15,6 @@ namespace QTCAD.Inv25.Commands
             _documentService = documentService;
         }
 
-        [SupportedOSPlatform("windows6.1")]
         public void Execute()
         {
             var result = _documentService.ValidateActiveDocument();

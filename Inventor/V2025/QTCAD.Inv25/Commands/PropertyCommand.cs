@@ -1,6 +1,5 @@
 ﻿using QTCAD.API.Commands;
 using QTCAD.Inv25.Services;
-using System.Runtime.Versioning;
 using System.Text;
 using System.Windows.Forms;
 
@@ -20,8 +19,6 @@ namespace QTCAD.Inv25.Commands
         {
             _propertyService = propertyService;
         }
-
-        [SupportedOSPlatform("windows6.1")]
         public void Execute()
         {
             var properties = _propertyService.GetDocumentProperties();

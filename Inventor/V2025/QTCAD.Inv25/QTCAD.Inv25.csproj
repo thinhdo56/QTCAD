@@ -29,6 +29,7 @@
   <ItemGroup>
     <Compile Include="Adapter\InventorContext.cs" />
     <Compile Include="Commands\DocumentValidationCommand.cs" />
+    <Compile Include="Commands\DrawingCommand.cs" />
     <Compile Include="Commands\GeometryAnalysisCommand.cs" />
     <Compile Include="Commands\PropertyCommand.cs" />
     <Compile Include="Commands\TestCommand.cs" />

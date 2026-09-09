@@ -1,12 +1,6 @@
 ﻿using Inventor;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using QTCAD.API.Commands;
 
@@ -22,8 +16,6 @@ namespace QTCAD.Inv25.Commands
         {
             _documentService = documentService;
         }
-
-        [SupportedOSPlatform("windows6.1")]
         public void Execute()
         {
             var document = _documentService.GetActiveDocumentInfo();

@@ -2,7 +2,6 @@
 using QTCAD.API.Commands;
 using QTCAD.API.Geometry;
 using QTCAD.Inv25.Services;
-using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace QTCAD.Inv25.Commands
@@ -21,8 +20,6 @@ namespace QTCAD.Inv25.Commands
         {
             _geometryService = geometryService;
         }
-
-        [SupportedOSPlatform("windows6.1")]
         public void Execute()
         {
             var geometry = _geometryService.Analyze();
