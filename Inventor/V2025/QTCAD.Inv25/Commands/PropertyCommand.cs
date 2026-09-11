@@ -9,11 +9,9 @@ namespace QTCAD.Inv25.Commands
     {
         private readonly PropertyService _propertyService;
 
-        public string Id => "QTCAD.Properties";
-
+        public string Id => "QTCAD.Properties.Open";
         public string DisplayName => "Properties";
-
-        public string Description => "Show active document properties";
+        public string Description => "View and manage document properties.";
 
         public PropertyCommand(PropertyService propertyService)
         {

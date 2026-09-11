@@ -10,12 +10,9 @@ namespace QTCAD.Inv25.Commands
     {
         private readonly IGeometryService _geometryService;
 
-        public string Id => "QTCAD.GeometryAnalysis";
-
+        public string Id => "QTCAD.Geometry.Analysis";
         public string DisplayName => "Geometry Analysis";
-
-        public string Description => "Analyze active model geometry";
-
+        public string Description => "Analyze the geometry of the active model.";
         public GeometryAnalysisCommand(IGeometryService geometryService)
         {
             _geometryService = geometryService;

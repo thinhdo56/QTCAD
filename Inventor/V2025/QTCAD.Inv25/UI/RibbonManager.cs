@@ -14,6 +14,7 @@ namespace QTCAD.Inv25.UI
         private ButtonDefinition? _testButton;
         private ButtonDefinition? _propertyButton;
         private ButtonDefinition? _geometryAnalysisButton;
+        private ButtonDefinition? _create2DButton;
         public RibbonManager(InventorContext context)
         {
             _context = context;
@@ -26,18 +27,21 @@ namespace QTCAD.Inv25.UI
 
             ICommand testCommand = _commands.Get("QTCAD.Test");
             ICommand documentValidationCommand = _commands.Get("QTCAD.DocumentValidation");
-            ICommand propertyCommand = _commands.Get("QTCAD.Properties");
-            ICommand geometryAnalysisCommand = _commands.Get("QTCAD.GeometryAnalysis");
+            ICommand propertyCommand = _commands.Get("QTCAD.Properties.Open");
+            ICommand geometryAnalysisCommand = _commands.Get("QTCAD.Geometry.Analysis");
+            ICommand drawingCommand = _commands.Get("QTCAD.Drawing.Create2D");
 
             _testButton = GetOrCreateButtonDefinition(commandManager, testCommand);
             _documentValidationButton = GetOrCreateButtonDefinition(commandManager, documentValidationCommand);
             _propertyButton = GetOrCreateButtonDefinition( commandManager, propertyCommand);
             _geometryAnalysisButton = GetOrCreateButtonDefinition(commandManager, geometryAnalysisCommand);
+            _create2DButton = GetOrCreateButtonDefinition(commandManager, drawingCommand);
 
             _testButton.OnExecute += TestButton_OnExecute;
             _documentValidationButton.OnExecute += DocumentValidationButton_OnExecute;
             _propertyButton.OnExecute += PropertyButton_OnExecute;
-            _geometryAnalysisButton.OnExecute += GeometryAnalysisButton_OnExecute;  
+            _geometryAnalysisButton.OnExecute += GeometryAnalysisButton_OnExecute;
+            _create2DButton.OnExecute += Create2DButton_OnExecute;
 
             CreateRibbon(RibbonEnvironment.Part);
             CreateRibbon(RibbonEnvironment.Assembly);
@@ -47,7 +51,6 @@ namespace QTCAD.Inv25.UI
         {
             UserInterfaceManager uiManager = _context.Application.UserInterfaceManager;
             Ribbon ribbon = uiManager.Ribbons[environment.GetRibbonName()];
-
             RibbonTab tab;
 
             try
@@ -56,10 +59,7 @@ namespace QTCAD.Inv25.UI
             }
             catch
             {
-                tab = ribbon.RibbonTabs.Add(
-                    "QTCAD",
-                    "QTCAD.Tab",
-                    Guid.NewGuid().ToString());
+                tab = ribbon.RibbonTabs.Add( "QTCAD", "QTCAD.Tab", Guid.NewGuid().ToString());
             }
 
             RibbonPanel panel;
@@ -70,10 +70,7 @@ namespace QTCAD.Inv25.UI
             }
             catch
             {
-                panel = tab.RibbonPanels.Add(
-                    "Tools",
-                    "QTCAD.Panel",
-                    Guid.NewGuid().ToString());
+                panel = tab.RibbonPanels.Add("Tools", "QTCAD.Panel", Guid.NewGuid().ToString());
             }
 
             if (!CommandControlExists(panel, _testButton))
@@ -93,6 +90,10 @@ namespace QTCAD.Inv25.UI
             if (!CommandControlExists(panel, _geometryAnalysisButton))
             {
                 panel.CommandControls.AddButton(_geometryAnalysisButton, true);
+            }
+            if (!CommandControlExists(panel, _create2DButton))
+            {
+                panel.CommandControls.AddButton(_create2DButton, true);
             }
         }
 
@@ -119,9 +120,7 @@ namespace QTCAD.Inv25.UI
         {
             try
             {
-                return commandManager.ControlDefinitions[command.Id] as ButtonDefinition
-                    ?? throw new InvalidOperationException(
-                        $"ControlDefinition '{command.Id}' is not a ButtonDefinition.");
+                return commandManager.ControlDefinitions[command.Id] as ButtonDefinition ?? throw new InvalidOperationException($"ControlDefinition '{command.Id}' is not a ButtonDefinition.");
             }
             catch
             {
@@ -148,12 +147,16 @@ namespace QTCAD.Inv25.UI
 
         private void PropertyButton_OnExecute(NameValueMap context)
         {
-            _commands.Get("QTCAD.Properties").Execute();
+            _commands.Get("QTCAD.Properties.Open").Execute();
         }
 
         private void GeometryAnalysisButton_OnExecute(NameValueMap context)
         {
-            _commands.Get("QTCAD.GeometryAnalysis").Execute();
+            _commands.Get("QTCAD.Geometry.Analysis").Execute();
+        }
+        private void Create2DButton_OnExecute(NameValueMap context)
+        {
+            _commands.Get("QTCAD.Drawing.Create2D").Execute();
         }
         public void Dispose()
         {
@@ -172,6 +175,10 @@ namespace QTCAD.Inv25.UI
             if (_geometryAnalysisButton != null)
             {
                 _geometryAnalysisButton.OnExecute -= GeometryAnalysisButton_OnExecute;
+            }
+            if (_create2DButton != null)
+            {
+                _create2DButton.OnExecute -= Create2DButton_OnExecute;
             }
         }
     }

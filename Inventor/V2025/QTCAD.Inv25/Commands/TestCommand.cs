@@ -10,8 +10,8 @@ namespace QTCAD.Inv25.Commands
     {
         private readonly DocumentService _documentService;
         public string Id => "QTCAD.Test";
-        public string DisplayName => "QTCAD Test";
-        public string Description => "Test QTCAD Inventor connection";
+        public string DisplayName => "Test";
+        public string Description => "Run QTCAD test command.";
         public TestCommand(DocumentService documentService)
         {
             _documentService = documentService;
