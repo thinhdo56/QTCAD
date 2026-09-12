@@ -7,5 +7,7 @@
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\QTCAD.API\QTCAD.API.csproj" />
+  </ItemGroup>
 </Project>

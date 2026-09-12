@@ -16,44 +16,10 @@
     <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType>none</DebugType>
-  </PropertyGroup>
-
   <ItemGroup>
-    <Compile Include="Adapter\InventorContext.cs" />
-    <Compile Include="Commands\DocumentValidationCommand.cs" />
-    <Compile Include="Commands\DrawingCommand.cs" />
-    <Compile Include="Commands\GeometryAnalysisCommand.cs" />
-    <Compile Include="Commands\PropertyCommand.cs" />
-    <Compile Include="Commands\TestCommand.cs" />
-    <Compile Include="Drawing\DrawingService.cs" />
-    <Compile Include="Drawing\DrawingViewService.cs" />
-    <Compile Include="Drawing\StandardView.cs" />
-    <Compile Include="Geometry\FaceAnalyzer.cs" />
-    <Compile Include="Geometry\FaceFilter.cs" />
-    <Compile Include="Geometry\IFaceFilter.cs" />
-    <Compile Include="Services\AssemblyGeometryService.cs" />
-    <Compile Include="Services\DocumentService.cs" />
-    <Compile Include="Services\ModelGeometryService.cs" />
-    <Compile Include="Services\ModelDocumentService.cs" />
-    <Compile Include="Services\PropertyService.cs" />
-    <Compile Include="StandardAddInServer.cs" />
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="UI\CommandRegistry.cs" />
-    <Compile Include="UI\RibbonEnvironment.cs" />
-    <Compile Include="UI\RibbonEnvironmentExtensions.cs" />
-    <Compile Include="UI\RibbonManager.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Properties\launchSettings.json" />
+    <Compile Include="**\*.cs" Exclude="bin\**;obj\**" />
+    <EmbeddedResource Include="**\*.resx" Exclude="bin\**;obj\**" />
+    <None Include="Properties\launchSettings.json" />
     <None Include="QTCAD.Inv25.X.manifest" />
     <None Include="QTCAD.Inv25.addin" />
     <None Include="Readme.txt" />
@@ -66,14 +32,72 @@
 
   <ItemGroup>
     <Reference Include="Autodesk.Inventor.Interop">
-      <HintPath Condition="Exists('$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll')">$(programfiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
+      <HintPath Condition="Exists('$(ProgramFiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll')">$(ProgramFiles)\Autodesk\Inventor 2025\Bin\Autodesk.Inventor.Interop.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\mt.exe&quot; -manifest &quot;$(ProjectDir)QTCAD.Inv25.X.manifest&quot; -outputresource:&quot;$(TargetPath)&quot;;#2" />
+  <Target Name="EmbedManifest" AfterTargets="Build">
+
+    <PropertyGroup>
+      <WindowsSdkRoot>C:\Program Files (x86)\Windows Kits\10</WindowsSdkRoot>
+      <MtExe>$(WindowsSdkRoot)\bin\10.0.22621.0\x64\mt.exe</MtExe>
+    </PropertyGroup>
+
+    <Error
+      Condition="!Exists('$(MtExe)')"
+      Text="Windows SDK mt.exe was not found: $(MtExe)" />
+
+    <Message
+      Importance="High"
+      Text="Using mt.exe: $(MtExe)" />
+
+    <Exec
+      Command="&quot;$(MtExe)&quot; -manifest &quot;$(ProjectDir)QTCAD.Inv25.X.manifest&quot; -outputresource:&quot;$(TargetPath)&quot;;#2" />
+
+  </Target>
+
+  <Target Name="DeployInventorAddin" AfterTargets="EmbedManifest">
+
+    <PropertyGroup>
+      <InventorAddinDir>$(APPDATA)\Autodesk\Inventor 2025\Addins\QTCAD.Inv25</InventorAddinDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(InventorAddinDir)" />
+
+    <Copy
+      SourceFiles="$(TargetPath)"
+      DestinationFolder="$(InventorAddinDir)"
+      SkipUnchangedFiles="true" />
+
+    <Copy
+      Condition="Exists('$(TargetDir)QTCAD.API.dll')"
+      SourceFiles="$(TargetDir)QTCAD.API.dll"
+      DestinationFolder="$(InventorAddinDir)"
+      SkipUnchangedFiles="true" />
+
+    <Copy
+      Condition="Exists('$(TargetDir)QTCAD.Common.dll')"
+      SourceFiles="$(TargetDir)QTCAD.Common.dll"
+      DestinationFolder="$(InventorAddinDir)"
+      SkipUnchangedFiles="true" />
+
+    <Copy
+      SourceFiles="$(ProjectDir)QTCAD.Inv25.addin"
+      DestinationFolder="$(InventorAddinDir)"
+      SkipUnchangedFiles="true" />
+
+    <Copy
+      Condition="Exists('$(TargetPath).pdb')"
+      SourceFiles="$(TargetPath).pdb"
+      DestinationFolder="$(InventorAddinDir)"
+      SkipUnchangedFiles="true" />
+
+    <Message
+      Importance="High"
+      Text="QTCAD.Inv25 deployed to $(InventorAddinDir)" />
+
   </Target>
 
 </Project>
