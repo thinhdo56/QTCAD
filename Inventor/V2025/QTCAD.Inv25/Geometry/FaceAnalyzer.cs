@@ -12,7 +12,7 @@ namespace QTCAD.Inv25.Geometry
             _transientGeometry = transientGeometry;
         }
 
-        public FaceGeometryInfo Analyze(Face face, int index)
+        public FaceInfo Analyze(Face face, int index)
         {
 
             Box2d paramRange = face.Evaluator.ParamRangeRect;
@@ -44,7 +44,7 @@ namespace QTCAD.Inv25.Geometry
 
             face.Evaluator.GetNormal(ref normalParams, ref normals);
 
-            return new FaceGeometryInfo
+            return new FaceInfo
             {
                 Index = index,
                 Area = face.Evaluator.Area,

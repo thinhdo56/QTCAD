@@ -60,7 +60,7 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo? AnalyzePart(PartDocument document)
         {
             PartComponentDefinition definition = document.ComponentDefinition;
-            List<FaceGeometryInfo> faces = new List<FaceGeometryInfo>();
+            List<FaceInfo> faces = new List<FaceInfo>();
             int index = 0;
             foreach (SurfaceBody body in definition.SurfaceBodies)
             {
@@ -109,7 +109,7 @@ namespace QTCAD.Inv25.Services
             return GetBasicGeometry(document.UnitsOfMeasure, rangeBox);
         }
 
-        private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure DocUnits, Box rangeBox,int bodyCount = 0, int occurrenceCount = 0, int faceCount=0, IReadOnlyList<FaceGeometryInfo>? faces = null)
+        private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure DocUnits, Box rangeBox,int bodyCount = 0, int occurrenceCount = 0, int faceCount=0, IReadOnlyList<FaceInfo>? faces = null)
         {
 
             string unitSymbol = GetUnitSymbol(DocUnits.GetStringFromType(DocUnits.LengthUnits));

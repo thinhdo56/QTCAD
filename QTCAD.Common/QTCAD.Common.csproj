@@ -10,4 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\QTCAD.API\QTCAD.API.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Geometry\" />
+  </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using QTCAD.API.Drawing;    
 
-namespace QTCAD.Common.Geometry
+namespace QTCAD.API.Geometry
 {
     public sealed class ViewCandidate
     {
