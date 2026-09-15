@@ -54,7 +54,8 @@ namespace QTCAD.Inv25.Geometry
                 NormalX = normals[0],
                 NormalY = normals[1],
                 NormalZ = normals[2],
-                Type = face.SurfaceType.ToString()
+                Type = face.SurfaceType.ToString(),
+                IsPlanar = face.SurfaceType == SurfaceTypeEnum.kPlaneSurface
             };
         }
     }

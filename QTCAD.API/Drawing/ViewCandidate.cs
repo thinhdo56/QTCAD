@@ -10,11 +10,17 @@ namespace QTCAD.API.Geometry
     public sealed class ViewCandidate
     {
         public BaseViewType ViewType { get; init; }
-        public double Score { get; set; }
-        public int VisibleFaces { get; set; }
-        public int HiddenFaces { get; set; }
-        public int CircularFeatures { get; set; }
-        public int FeatureCount { get; set; }
-        public double VisibleArea { get; set; }
+
+        public double Score { get; init; }
+
+        public int VisibleFaces { get; init; }
+
+        public int HiddenFaces { get; init; }
+
+        public int CircularFeatures { get; init; }
+
+        public int FeatureCount { get; init; }
+
+        public double VisibleArea { get; init; }
     }
 }

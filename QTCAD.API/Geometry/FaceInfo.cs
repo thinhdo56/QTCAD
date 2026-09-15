@@ -17,5 +17,6 @@ namespace QTCAD.API.Geometry
         public double NormalY { get; init; }
         public double NormalZ { get; init; }
         public string Type { get; init; } = string.Empty;
+        public bool IsPlanar { get; init; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using QTCAD.API.Commands;
 using QTCAD.API.Properties;
+using QTCAD.API.Drawing;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Commands;
 using QTCAD.Inv25.Drawing;
@@ -19,7 +20,8 @@ namespace QTCAD.Inv25.UI
             ModelDocumentService modelDocumentService = new ModelDocumentService(context);
             PropertyService propertyService = new PropertyService(context);
             FaceAnalyzer faceAnalyzer = new FaceAnalyzer(context.Application.TransientGeometry);
-            ModelGeometryService geometryService = new ModelGeometryService(context, faceAnalyzer);
+            ViewCandidateAnalyzer viewCandidateAnalyzer = new ViewCandidateAnalyzer();
+            ModelGeometryService geometryService = new ModelGeometryService(context, faceAnalyzer, viewCandidateAnalyzer);
             DrawingService drawingService = new DrawingService(context, modelDocumentService);
             DrawingCommand drawingCommand = new DrawingCommand(drawingService);
 

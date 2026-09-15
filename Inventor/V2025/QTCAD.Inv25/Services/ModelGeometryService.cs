@@ -5,8 +5,8 @@ using QTCAD.Inv25.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Versioning;
 using System.Windows.Forms;
+using QTCAD.API.Drawing;
 
 namespace QTCAD.Inv25.Services
 {
@@ -14,10 +14,15 @@ namespace QTCAD.Inv25.Services
     {
         private readonly InventorContext _context;
         private readonly FaceAnalyzer _faceAnalyzer;
-        public ModelGeometryService(InventorContext context, FaceAnalyzer faceAnalyzer)
+        private readonly ViewCandidateAnalyzer _viewCandidateAnalyzer;
+
+
+
+        public ModelGeometryService(InventorContext context, FaceAnalyzer faceAnalyzer, ViewCandidateAnalyzer viewCandidateAnalyzer)
         {
             _context = context;
             _faceAnalyzer = faceAnalyzer;
+            _viewCandidateAnalyzer = viewCandidateAnalyzer;
         }
 
         public ModelGeometryInfo? Analyze()
@@ -75,8 +80,10 @@ namespace QTCAD.Inv25.Services
             {
                 return null;
             }
-            string faceInfo = string.Join("\n", faces.Select(f => $"Face {f.Index}: Area={f.Area:F2}, Center=({f.CenterX:F2}, {f.CenterY:F2}, {f.CenterZ:F2}), Normal=({f.NormalX:F4}, {f.NormalY:F4}, {f.NormalZ:F4}), Type={f.Type}"));
-            MessageBox.Show(faceInfo, "Face Analyzer Test", MessageBoxButtons.OK, MessageBoxIcon.Information );
+            ModelGeometryInfo geometry = GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
+            IReadOnlyList<ViewCandidate> candidates = _viewCandidateAnalyzer.Analyze(geometry);
+            string result = string.Join("\n", candidates.Select(x => $"{x.ViewType}: Score={x.Score:F3}, VisibleFaces={x.VisibleFaces}, HiddenFaces={x.HiddenFaces}, VisibleArea={x.VisibleArea:F2}"));
+            MessageBox.Show(result, "View Candidate Analyzer", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
         }
         private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)
