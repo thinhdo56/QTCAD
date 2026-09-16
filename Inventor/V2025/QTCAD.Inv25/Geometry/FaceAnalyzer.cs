@@ -1,12 +1,13 @@
 ﻿using Inventor;
 using QTCAD.API.Geometry;
+using System.Collections.Generic;
 
 namespace QTCAD.Inv25.Geometry
 {
     internal sealed class FaceAnalyzer
     {
         private readonly TransientGeometry _transientGeometry;
-
+        List<int> edgeIndices = [];
 
         public FaceAnalyzer(TransientGeometry transientGeometry)
         {

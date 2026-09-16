@@ -20,8 +20,9 @@ namespace QTCAD.Inv25.UI
             ModelDocumentService modelDocumentService = new ModelDocumentService(context);
             PropertyService propertyService = new PropertyService(context);
             FaceAnalyzer faceAnalyzer = new FaceAnalyzer(context.Application.TransientGeometry);
+            GeometryExtractor geometryExtractor = new GeometryExtractor(faceAnalyzer);
             ViewCandidateAnalyzer viewCandidateAnalyzer = new ViewCandidateAnalyzer();
-            ModelGeometryService geometryService = new ModelGeometryService(context, faceAnalyzer, viewCandidateAnalyzer);
+            ModelGeometryService geometryService = new ModelGeometryService(context, faceAnalyzer, geometryExtractor, viewCandidateAnalyzer);
             DrawingService drawingService = new DrawingService(context, modelDocumentService);
             DrawingCommand drawingCommand = new DrawingCommand(drawingService);
 

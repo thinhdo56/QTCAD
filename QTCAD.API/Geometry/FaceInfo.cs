@@ -9,6 +9,7 @@ namespace QTCAD.API.Geometry
     public sealed class FaceInfo
     {
         public int Index { get; init; }
+        public IReadOnlyList<int> EdgeIndices { get; init; } = [];
         public double Area { get; init; }
         public double CenterX { get; init; }
         public double CenterY { get; init; }
@@ -22,5 +23,6 @@ namespace QTCAD.API.Geometry
         public double AxisX { get; init; }
         public double AxisY { get; init; }
         public double AxisZ { get; init; }
+
     }
 }

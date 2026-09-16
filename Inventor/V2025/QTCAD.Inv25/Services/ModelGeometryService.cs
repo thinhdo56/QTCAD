@@ -14,14 +14,16 @@ namespace QTCAD.Inv25.Services
     {
         private readonly InventorContext _context;
         private readonly FaceAnalyzer _faceAnalyzer;
+        private readonly GeometryExtractor _geometryExtractor;
         private readonly ViewCandidateAnalyzer _viewCandidateAnalyzer;
 
 
 
-        public ModelGeometryService(InventorContext context, FaceAnalyzer faceAnalyzer, ViewCandidateAnalyzer viewCandidateAnalyzer)
+        public ModelGeometryService(InventorContext context, FaceAnalyzer faceAnalyzer, GeometryExtractor geometryExtractor, ViewCandidateAnalyzer viewCandidateAnalyzer)
         {
             _context = context;
             _faceAnalyzer = faceAnalyzer;
+            _geometryExtractor = geometryExtractor;
             _viewCandidateAnalyzer = viewCandidateAnalyzer;
         }
 
@@ -65,28 +67,29 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo? AnalyzePart(PartDocument document)
         {
             PartComponentDefinition definition = document.ComponentDefinition;
-            List<FaceInfo> faces = new List<FaceInfo>();
-            int index = 0;
-            foreach (SurfaceBody body in definition.SurfaceBodies)
-            {
-                foreach (Face face in body.Faces)
-                {
-                    faces.Add(_faceAnalyzer.Analyze(face, index++, document.UnitsOfMeasure));
-                }
-            }
+            GeometryExtractionResult geometry = _geometryExtractor.Extract(definition, document.UnitsOfMeasure);
             Box? rangeBox = definition.RangeBox;
 
             if (rangeBox == null)
             {
                 return null;
             }
-            ModelGeometryInfo geometry = GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
+            ModelGeometryInfo geometryInfo = GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, geometry.Edges.Count, geometry.Faces.Count, geometry.Faces, geometry.Edges);
+
+            string edgeResult = string.Join(System.Environment.NewLine, geometryInfo.Edges.Select(x => $"Edge {x.Index} | Type={x.CurveType} | Length={x.Length:F3} | Circular={x.IsCircular} | Linear={x.IsLinear}"));
+            MessageBox.Show(edgeResult.Length > 0 ? edgeResult : "No Edge detected", "Edge Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             string cylinders = string.Join("\n", geometry.Faces.Where(x => x.Radius > 0.0).Select(x => $"Face {x.Index}: Type={x.Type}, Radius={x.Radius:F3}, Axis=({x.AxisX:F3}, {x.AxisY:F3}, {x.AxisZ:F3})"));
             MessageBox.Show(cylinders.Length > 0 ? cylinders : "No Cylinder detected", "Cylinder Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            IReadOnlyList<ViewCandidate> candidates = _viewCandidateAnalyzer.Analyze(geometry);
+
+            string faceEdges = string.Join(System.Environment.NewLine, geometryInfo.Faces.Select(x => $"Face {x.Index} | Type={x.Type} | Edges=[{string.Join(", ", x.EdgeIndices)}]"));
+            MessageBox.Show(faceEdges, "Face Edge Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            IReadOnlyList<ViewCandidate> candidates = _viewCandidateAnalyzer.Analyze(geometryInfo);
             string result = string.Join(System.Environment.NewLine, candidates.Select((x, i) => $"{i + 1}. {x.ViewType} | Score={x.Score:F3} | VisibleFaces={x.VisibleFaces} | HiddenFaces={x.HiddenFaces} | CircularFeatures={x.CircularFeatures} | FeatureCount={x.FeatureCount} | VisibleArea={x.VisibleArea:F2}"));
             MessageBox.Show(result, "View Candidate Analyzer", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
+
+            return geometryInfo;
         }
         private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)
         {
@@ -97,8 +100,7 @@ namespace QTCAD.Inv25.Services
             {
                 return null;
             }
-
-            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox);
+            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, 0, 0, 0, 0, [], []);
         }
         private ModelGeometryInfo? AnalyzeAssembly(AssemblyDocument document)
         {
@@ -106,7 +108,7 @@ namespace QTCAD.Inv25.Services
             Box? rangeBox = definition.RangeBox;
             if (rangeBox == null) return null;
 
-            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox);
+            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox,0,0,0,0, [], []);
         }
         private ModelGeometryInfo? AnalyzeWeldment(AssemblyDocument document)
         {
@@ -115,10 +117,10 @@ namespace QTCAD.Inv25.Services
             if (rangeBox == null) return null;
 
 
-            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox);
+            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, 0, 0, 0, 0, [], []);
         }
 
-        private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure DocUnits, Box rangeBox,int bodyCount = 0, int occurrenceCount = 0, int faceCount=0, IReadOnlyList<FaceInfo>? faces = null)
+        private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure DocUnits, Box rangeBox, int bodyCount, int occurrenceCount, int edgeCount, int faceCount, IReadOnlyList<FaceInfo> faces, IReadOnlyList<EdgeInfo> edges)
         {
 
             string unitSymbol = GetUnitSymbol(DocUnits.GetStringFromType(DocUnits.LengthUnits));
@@ -132,9 +134,11 @@ namespace QTCAD.Inv25.Services
                 ZSize = DocUnits.ConvertUnits(zSize, UnitsTypeEnum.kDatabaseLengthUnits, DocUnits.LengthUnits),
                 Unit = unitSymbol,
                 BodyCount = bodyCount,
+                EdgeCount = edgeCount,
                 OccurrenceCount = occurrenceCount,
                 FaceCount = faceCount,
-                Faces = faces ?? []
+                Faces = faces ?? [],
+                Edges = edges
             };
         }
         private string GetUnitSymbol(string unitName)
