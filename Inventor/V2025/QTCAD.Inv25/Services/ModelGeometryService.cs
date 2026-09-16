@@ -71,7 +71,7 @@ namespace QTCAD.Inv25.Services
             {
                 foreach (Face face in body.Faces)
                 {
-                    faces.Add(_faceAnalyzer.Analyze(face, index++));
+                    faces.Add(_faceAnalyzer.Analyze(face, index++, document.UnitsOfMeasure));
                 }
             }
             Box? rangeBox = definition.RangeBox;

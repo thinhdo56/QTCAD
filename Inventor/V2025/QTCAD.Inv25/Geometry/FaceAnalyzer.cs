@@ -7,12 +7,13 @@ namespace QTCAD.Inv25.Geometry
     {
         private readonly TransientGeometry _transientGeometry;
 
+
         public FaceAnalyzer(TransientGeometry transientGeometry)
         {
             _transientGeometry = transientGeometry;
         }
 
-        public FaceInfo Analyze(Face face, int index)
+        public FaceInfo Analyze(Face face, int index, UnitsOfMeasure unitsOfMeasure)
         {
 
             double radius = 0.0;
@@ -23,7 +24,7 @@ namespace QTCAD.Inv25.Geometry
             if (face.SurfaceType == SurfaceTypeEnum.kCylinderSurface)
             {
                 Cylinder cylinder = (Cylinder)face.Geometry;
-                radius = cylinder.Radius;
+                radius = unitsOfMeasure.ConvertUnits(cylinder.Radius, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits);
                 axisX = cylinder.AxisVector.X;
                 axisY = cylinder.AxisVector.Y;
                 axisZ = cylinder.AxisVector.Z;
