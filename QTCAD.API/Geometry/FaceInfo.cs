@@ -18,5 +18,9 @@ namespace QTCAD.API.Geometry
         public double NormalZ { get; init; }
         public string Type { get; init; } = string.Empty;
         public bool IsPlanar { get; init; }
+        public double Radius { get; init; }
+        public double AxisX { get; init; }
+        public double AxisY { get; init; }
+        public double AxisZ { get; init; }
     }
 }

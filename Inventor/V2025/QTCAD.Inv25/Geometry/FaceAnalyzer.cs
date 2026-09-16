@@ -15,6 +15,19 @@ namespace QTCAD.Inv25.Geometry
         public FaceInfo Analyze(Face face, int index)
         {
 
+            double radius = 0.0;
+            double axisX = 0.0;
+            double axisY = 0.0;
+            double axisZ = 0.0;
+
+            if (face.SurfaceType == SurfaceTypeEnum.kCylinderSurface)
+            {
+                Cylinder cylinder = (Cylinder)face.Geometry;
+                radius = cylinder.Radius;
+                axisX = cylinder.AxisVector.X;
+                axisY = cylinder.AxisVector.Y;
+                axisZ = cylinder.AxisVector.Z;
+            }
             Box2d paramRange = face.Evaluator.ParamRangeRect;
 
             double u = (paramRange.MinPoint.X + paramRange.MaxPoint.X) / 2.0;
@@ -32,6 +45,7 @@ namespace QTCAD.Inv25.Geometry
             double[] maxDeviations = { 0.001, 0.001 };
             double[] normalParams = new double[2];
             SolutionNatureEnum[] solutionNatures = new SolutionNatureEnum[2];
+
 
             face.Evaluator.GetParamAtPoint(
                 ref facePoints,
@@ -55,7 +69,11 @@ namespace QTCAD.Inv25.Geometry
                 NormalY = normals[1],
                 NormalZ = normals[2],
                 Type = face.SurfaceType.ToString(),
-                IsPlanar = face.SurfaceType == SurfaceTypeEnum.kPlaneSurface
+                IsPlanar = face.SurfaceType == SurfaceTypeEnum.kPlaneSurface,
+                Radius = radius,
+                AxisX = axisX,
+                AxisY = axisY,
+                AxisZ = axisZ
             };
         }
     }
