@@ -61,7 +61,7 @@
   <Target Name="DeployInventorAddin" AfterTargets="EmbedManifest">
 
     <PropertyGroup>
-      <InventorAddinDir>$(APPDATA)\Autodesk\Inventor 2025\Addins\QTCAD.Inv25</InventorAddinDir>
+      <InventorAddinDir>$(APPDATA)\Autodesk\Inventor 2025\Addins</InventorAddinDir>
     </PropertyGroup>
 
     <MakeDir Directories="$(InventorAddinDir)" />

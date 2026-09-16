@@ -81,8 +81,10 @@ namespace QTCAD.Inv25.Services
                 return null;
             }
             ModelGeometryInfo geometry = GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
+            string cylinders = string.Join("\n", geometry.Faces.Where(x => x.Radius > 0.0).Select(x => $"Face {x.Index}: Type={x.Type}, Radius={x.Radius:F3}, Axis=({x.AxisX:F3}, {x.AxisY:F3}, {x.AxisZ:F3})"));
+            MessageBox.Show(cylinders.Length > 0 ? cylinders : "No Cylinder detected", "Cylinder Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
             IReadOnlyList<ViewCandidate> candidates = _viewCandidateAnalyzer.Analyze(geometry);
-            string result = string.Join("\n", candidates.Select(x => $"{x.ViewType}: Score={x.Score:F3}, VisibleFaces={x.VisibleFaces}, HiddenFaces={x.HiddenFaces}, VisibleArea={x.VisibleArea:F2}"));
+            string result = string.Join(System.Environment.NewLine, candidates.Select((x, i) => $"{i + 1}. {x.ViewType} | Score={x.Score:F3} | VisibleFaces={x.VisibleFaces} | HiddenFaces={x.HiddenFaces} | CircularFeatures={x.CircularFeatures} | FeatureCount={x.FeatureCount} | VisibleArea={x.VisibleArea:F2}"));
             MessageBox.Show(result, "View Candidate Analyzer", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, faces.Count, faces);
         }

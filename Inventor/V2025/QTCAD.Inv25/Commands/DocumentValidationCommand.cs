@@ -19,9 +19,7 @@ namespace QTCAD.Inv25.Commands
         {
             var result = _documentService.ValidateActiveDocument();
 
-            MessageBox.Show(
-                result.Message,
-                result.IsValid ? "QTCAD - Valid" : "QTCAD - Invalid");
+            MessageBox.Show(result.Message, result.IsValid ? "QTCAD - Valid" : "QTCAD - Invalid");
         }
     }
 }
