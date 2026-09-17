@@ -42,12 +42,18 @@ namespace QTCAD.Inv25.Geometry
                         {
                             edgeIndex = edges.Count;
                             edgeMap.Add(hash, edgeIndex);
+                            double minParam;
+                            double maxParam;
+                            double length;
+                            edge.Evaluator.GetParamExtents(out minParam, out maxParam);
+                            edge.Evaluator.GetLengthAtParam(minParam, maxParam, out length);
+                            length = unitsOfMeasure.ConvertUnits(length, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits);
 
                             edges.Add(new EdgeInfo
                             {
                                 Index = edgeIndex,
                                 CurveType = edge.CurveType.ToString(),
-                                Length = 0,
+                                Length = length,
                                 IsCircular = edge.CurveType == CurveTypeEnum.kCircleCurve,
                                 IsLinear = edge.CurveType == CurveTypeEnum.kLineSegmentCurve
                             });
@@ -74,6 +80,28 @@ namespace QTCAD.Inv25.Geometry
                         AxisY = faceInfo.AxisY,
                         AxisZ = faceInfo.AxisZ
                     });
+                }
+            }
+            Dictionary<int, List<int>> edgeFaces = [];
+
+            foreach (FaceInfo face in faces)
+            {
+                foreach (int edgeIndex in face.EdgeIndices)
+                {
+                    if (!edgeFaces.TryGetValue(edgeIndex, out List<int>? faceIndices))
+                    {
+                        faceIndices = [];
+                        edgeFaces.Add(edgeIndex, faceIndices);
+                    }
+
+                    faceIndices.Add(face.Index);
+                }
+            }
+            foreach (EdgeInfo edge in edges)
+            {
+                if (edgeFaces.TryGetValue(edge.Index, out List<int>? faceIndices))
+                {
+                    edge.AdjacentFaceIndices = faceIndices;
                 }
             }
 

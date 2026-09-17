@@ -13,5 +13,6 @@ namespace QTCAD.API.Geometry
         public double Length { get; init; }
         public bool IsCircular { get; init; }
         public bool IsLinear { get; init; }
+        public IReadOnlyList<int> AdjacentFaceIndices { get; set; } = [];
     }
 }

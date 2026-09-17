@@ -85,6 +85,9 @@ namespace QTCAD.Inv25.Services
             string faceEdges = string.Join(System.Environment.NewLine, geometryInfo.Faces.Select(x => $"Face {x.Index} | Type={x.Type} | Edges=[{string.Join(", ", x.EdgeIndices)}]"));
             MessageBox.Show(faceEdges, "Face Edge Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+            string edgeFacesResult = string.Join(System.Environment.NewLine, geometry.Edges.Select(x => $"Edge {x.Index} | Faces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
+            MessageBox.Show(edgeFacesResult, "Edge Adjacent Faces Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             IReadOnlyList<ViewCandidate> candidates = _viewCandidateAnalyzer.Analyze(geometryInfo);
             string result = string.Join(System.Environment.NewLine, candidates.Select((x, i) => $"{i + 1}. {x.ViewType} | Score={x.Score:F3} | VisibleFaces={x.VisibleFaces} | HiddenFaces={x.HiddenFaces} | CircularFeatures={x.CircularFeatures} | FeatureCount={x.FeatureCount} | VisibleArea={x.VisibleArea:F2}"));
             MessageBox.Show(result, "View Candidate Analyzer", MessageBoxButtons.OK, MessageBoxIcon.Information);
