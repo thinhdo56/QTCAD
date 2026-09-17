@@ -67,32 +67,21 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo? AnalyzePart(PartDocument document)
         {
             PartComponentDefinition definition = document.ComponentDefinition;
-            GeometryExtractionResult geometry = _geometryExtractor.Extract(definition, document.UnitsOfMeasure);
+            GeometryExtractionResult geometry = _geometryExtractor.Extract( definition, document.UnitsOfMeasure);
             Box? rangeBox = definition.RangeBox;
-
             if (rangeBox == null)
             {
                 return null;
             }
-            ModelGeometryInfo geometryInfo = GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, geometry.Edges.Count, geometry.Faces.Count, geometry.Faces, geometry.Edges);
-
-            string edgeResult = string.Join(System.Environment.NewLine, geometryInfo.Edges.Select(x => $"Edge {x.Index} | Type={x.CurveType} | Length={x.Length:F3} | Circular={x.IsCircular} | Linear={x.IsLinear}"));
-            MessageBox.Show(edgeResult.Length > 0 ? edgeResult : "No Edge detected", "Edge Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            string cylinders = string.Join("\n", geometry.Faces.Where(x => x.Radius > 0.0).Select(x => $"Face {x.Index}: Type={x.Type}, Radius={x.Radius:F3}, Axis=({x.AxisX:F3}, {x.AxisY:F3}, {x.AxisZ:F3})"));
-            MessageBox.Show(cylinders.Length > 0 ? cylinders : "No Cylinder detected", "Cylinder Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            string faceEdges = string.Join(System.Environment.NewLine, geometryInfo.Faces.Select(x => $"Face {x.Index} | Type={x.Type} | Edges=[{string.Join(", ", x.EdgeIndices)}]"));
-            MessageBox.Show(faceEdges, "Face Edge Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            string edgeFacesResult = string.Join(System.Environment.NewLine, geometry.Edges.Select(x => $"Edge {x.Index} | Faces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
-            MessageBox.Show(edgeFacesResult, "Edge Adjacent Faces Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            IReadOnlyList<ViewCandidate> candidates = _viewCandidateAnalyzer.Analyze(geometryInfo);
-            string result = string.Join(System.Environment.NewLine, candidates.Select((x, i) => $"{i + 1}. {x.ViewType} | Score={x.Score:F3} | VisibleFaces={x.VisibleFaces} | HiddenFaces={x.HiddenFaces} | CircularFeatures={x.CircularFeatures} | FeatureCount={x.FeatureCount} | VisibleArea={x.VisibleArea:F2}"));
-            MessageBox.Show(result, "View Candidate Analyzer", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            return geometryInfo;
+            return GetBasicGeometry(
+                document.UnitsOfMeasure,
+                rangeBox,
+                definition.SurfaceBodies.Count,
+                0,
+                geometry.Edges.Count,
+                geometry.Faces.Count,
+                geometry.Faces,
+                geometry.Edges);
         }
         private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)
         {
@@ -123,18 +112,18 @@ namespace QTCAD.Inv25.Services
             return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, 0, 0, 0, 0, [], []);
         }
 
-        private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure DocUnits, Box rangeBox, int bodyCount, int occurrenceCount, int edgeCount, int faceCount, IReadOnlyList<FaceInfo> faces, IReadOnlyList<EdgeInfo> edges)
+        private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure unitsOfMeasure, Box rangeBox, int bodyCount, int occurrenceCount, int edgeCount, int faceCount, IReadOnlyList<FaceInfo> faces, IReadOnlyList<EdgeInfo> edges)
         {
 
-            string unitSymbol = GetUnitSymbol(DocUnits.GetStringFromType(DocUnits.LengthUnits));
+            string unitSymbol = GetUnitSymbol(unitsOfMeasure.GetStringFromType(unitsOfMeasure.LengthUnits));
             double xSize = rangeBox.MaxPoint.X - rangeBox.MinPoint.X;
             double ySize = rangeBox.MaxPoint.Y - rangeBox.MinPoint.Y;
             double zSize = rangeBox.MaxPoint.Z - rangeBox.MinPoint.Z;
             return new ModelGeometryInfo
             {
-                XSize = DocUnits.ConvertUnits(xSize, UnitsTypeEnum.kDatabaseLengthUnits, DocUnits.LengthUnits),
-                YSize = DocUnits.ConvertUnits(ySize, UnitsTypeEnum.kDatabaseLengthUnits, DocUnits.LengthUnits),
-                ZSize = DocUnits.ConvertUnits(zSize, UnitsTypeEnum.kDatabaseLengthUnits, DocUnits.LengthUnits),
+                XSize = unitsOfMeasure.ConvertUnits(xSize, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits),
+                YSize = unitsOfMeasure.ConvertUnits(ySize, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits),
+                ZSize = unitsOfMeasure.ConvertUnits(zSize, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits),
                 Unit = unitSymbol,
                 BodyCount = bodyCount,
                 EdgeCount = edgeCount,
