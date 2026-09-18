@@ -1,12 +1,14 @@
 ﻿using Inventor;
+using QTCAD.API.Drawing;
 using QTCAD.API.Geometry;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Geometry;
+using QTCAD.Inv25.Geometry.FeatureRecognition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using QTCAD.API.Drawing;
+using QTCADHoleFeature = QTCAD.Inv25.Geometry.FeatureRecognition.HoleFeature;
 
 namespace QTCAD.Inv25.Services
 {
@@ -66,6 +68,16 @@ namespace QTCAD.Inv25.Services
         {
             PartComponentDefinition definition = document.ComponentDefinition;
             GeometryExtractionResult geometry = _geometryExtractor.Extract( definition, document.UnitsOfMeasure);
+            HoleDetector holeDetector = new HoleDetector();
+            IReadOnlyList<QTCADHoleFeature> holes = holeDetector.Detect(geometry);
+
+            string holeResult = string.Join( System.Environment.NewLine, holes.Select(x => $"Hole | Face={x.CylindricalFaceIndex} | Diameter={x.Diameter:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
+
+            MessageBox.Show(
+                holeResult.Length > 0 ? holeResult : "No Hole detected",
+                "Hole Detection Test",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
             Box? rangeBox = definition.RangeBox;
             if (rangeBox == null)
             {
