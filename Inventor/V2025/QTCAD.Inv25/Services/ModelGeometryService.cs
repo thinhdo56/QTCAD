@@ -13,16 +13,14 @@ namespace QTCAD.Inv25.Services
     internal sealed class ModelGeometryService : IGeometryService
     {
         private readonly InventorContext _context;
-        private readonly FaceAnalyzer _faceAnalyzer;
         private readonly GeometryExtractor _geometryExtractor;
         private readonly ViewCandidateAnalyzer _viewCandidateAnalyzer;
 
 
 
-        public ModelGeometryService(InventorContext context, FaceAnalyzer faceAnalyzer, GeometryExtractor geometryExtractor, ViewCandidateAnalyzer viewCandidateAnalyzer)
+        public ModelGeometryService(InventorContext context, GeometryExtractor geometryExtractor, ViewCandidateAnalyzer viewCandidateAnalyzer)
         {
             _context = context;
-            _faceAnalyzer = faceAnalyzer;
             _geometryExtractor = geometryExtractor;
             _viewCandidateAnalyzer = viewCandidateAnalyzer;
         }
