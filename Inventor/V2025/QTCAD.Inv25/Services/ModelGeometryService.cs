@@ -16,14 +16,15 @@ namespace QTCAD.Inv25.Services
     {
         private readonly InventorContext _context;
         private readonly GeometryExtractor _geometryExtractor;
+        private readonly FaceAnalyzer _faceAnalyzer;
         private readonly ViewCandidateAnalyzer _viewCandidateAnalyzer;
 
 
-
-        public ModelGeometryService(InventorContext context, GeometryExtractor geometryExtractor, ViewCandidateAnalyzer viewCandidateAnalyzer)
+        public ModelGeometryService(InventorContext context, GeometryExtractor geometryExtractor, FaceAnalyzer faceAnalyzer, ViewCandidateAnalyzer viewCandidateAnalyzer)
         {
             _context = context;
             _geometryExtractor = geometryExtractor;
+            _faceAnalyzer = faceAnalyzer;
             _viewCandidateAnalyzer = viewCandidateAnalyzer;
         }
 
@@ -67,31 +68,35 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo? AnalyzePart(PartDocument document)
         {
             PartComponentDefinition definition = document.ComponentDefinition;
-            GeometryExtractionResult geometry = _geometryExtractor.Extract( definition, document.UnitsOfMeasure);
+            GeometryExtractionResult geometry = _geometryExtractor.Extract(definition, document.UnitsOfMeasure);
+
+            List<string> interiorResults = new List<string>();
+
+            foreach (SurfaceBody body in definition.SurfaceBodies)
+            {
+                foreach (Face face in body.Faces)
+                {
+                    if (face.SurfaceType != SurfaceTypeEnum.kCylinderSurface) continue;
+
+                    Cylinder cylinder = (Cylinder)face.Geometry;
+                    bool isInterior = _faceAnalyzer.IsInteriorCylindricalFace(face);
+                    interiorResults.Add($"Radius={cylinder.Radius:F3} | Interior={isInterior}");
+                }
+            }
+
+            MessageBox.Show(string.Join(System.Environment.NewLine, interiorResults), "Cylinder Interior Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             HoleDetector holeDetector = new HoleDetector();
             IReadOnlyList<QTCADHoleFeature> holes = holeDetector.Detect(geometry);
 
-            string holeResult = string.Join( System.Environment.NewLine, holes.Select(x => $"Hole | Face={x.CylindricalFaceIndex} | Diameter={x.Diameter:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
+            string holeResult = string.Join(System.Environment.NewLine, holes.Select(x => $"Hole | Face={x.CylindricalFaceIndex} | Diameter={x.Diameter:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
 
-            MessageBox.Show(
-                holeResult.Length > 0 ? holeResult : "No Hole detected",
-                "Hole Detection Test",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            MessageBox.Show(holeResult.Length > 0 ? holeResult : "No Hole detected", "Hole Detection Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             Box? rangeBox = definition.RangeBox;
-            if (rangeBox == null)
-            {
-                return null;
-            }
-            return GetBasicGeometry(
-                document.UnitsOfMeasure,
-                rangeBox,
-                definition.SurfaceBodies.Count,
-                0,
-                geometry.Edges.Count,
-                geometry.Faces.Count,
-                geometry.Faces,
-                geometry.Edges);
+            if (rangeBox == null) return null;
+
+            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, geometry.Edges.Count, geometry.Faces.Count, geometry.Faces, geometry.Edges);
         }
         private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)
         {

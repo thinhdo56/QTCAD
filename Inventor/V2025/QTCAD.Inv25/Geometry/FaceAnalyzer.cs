@@ -13,7 +13,31 @@ namespace QTCAD.Inv25.Geometry
         {
             _transientGeometry = transientGeometry;
         }
+        public bool IsInteriorCylindricalFace(Face face)
+        {
+            if (face.SurfaceType != SurfaceTypeEnum.kCylinderSurface)
+            { 
+                return false; 
+            }
 
+            Cylinder cylinder = (Cylinder)face.Geometry;
+            double[] parameters = { 0.5, 0.5 };
+            double[] points = new double[3];
+            face.Evaluator.GetPointAtParam(ref parameters, ref points);
+
+            Point point = _transientGeometry.CreatePoint(points[0], points[1], points[2]);
+            double[] normals = new double[3];
+            face.Evaluator.GetNormal(ref parameters, ref normals);
+
+            Vector normal = _transientGeometry.CreateVector(normals[0], normals[1], normals[2]);
+            normal.ScaleBy(cylinder.Radius);
+            point.TranslateBy(normal);
+
+            Line axisLine = _transientGeometry.CreateLine(cylinder.BasePoint, cylinder.AxisVector.AsVector());
+            Line sampleLine = _transientGeometry.CreateLine(point, cylinder.AxisVector.AsVector());
+
+            return sampleLine.IsColinearTo[axisLine, 0.001];
+        }
         public FaceInfo Analyze(Face face, int index, UnitsOfMeasure unitsOfMeasure)
         {
 

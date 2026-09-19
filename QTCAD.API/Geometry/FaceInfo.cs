@@ -23,6 +23,5 @@ namespace QTCAD.API.Geometry
         public double AxisX { get; init; }
         public double AxisY { get; init; }
         public double AxisZ { get; init; }
-
     }
 }
