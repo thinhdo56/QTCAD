@@ -46,6 +46,8 @@ namespace QTCAD.Inv25.Geometry
             double axisY = 0.0;
             double axisZ = 0.0;
 
+            bool isInterior = false;
+
             if (face.SurfaceType == SurfaceTypeEnum.kCylinderSurface)
             {
                 Cylinder cylinder = (Cylinder)face.Geometry;
@@ -53,6 +55,7 @@ namespace QTCAD.Inv25.Geometry
                 axisX = cylinder.AxisVector.X;
                 axisY = cylinder.AxisVector.Y;
                 axisZ = cylinder.AxisVector.Z;
+                isInterior = IsInteriorCylindricalFace(face);
             }
             Box2d paramRange = face.Evaluator.ParamRangeRect;
 
@@ -99,7 +102,8 @@ namespace QTCAD.Inv25.Geometry
                 Radius = radius,
                 AxisX = axisX,
                 AxisY = axisY,
-                AxisZ = axisZ
+                AxisZ = axisZ,
+                IsInterior = isInterior
             };
         }
     }

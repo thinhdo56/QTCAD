@@ -13,5 +13,6 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
         public double Diameter => Radius * 2.0;
         public IReadOnlyList<int> BoundaryEdgeIndices { get; init; } = [];
         public IReadOnlyList<int> AdjacentFaceIndices { get; init; } = [];
+        public bool IsBlind { get; set; }
     }
 }

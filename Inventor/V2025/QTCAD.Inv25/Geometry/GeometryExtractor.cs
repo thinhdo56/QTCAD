@@ -78,7 +78,8 @@ namespace QTCAD.Inv25.Geometry
                         Radius = faceInfo.Radius,
                         AxisX = faceInfo.AxisX,
                         AxisY = faceInfo.AxisY,
-                        AxisZ = faceInfo.AxisZ
+                        AxisZ = faceInfo.AxisZ,
+                        IsInterior = faceInfo.IsInterior
                     });
                 }
             }

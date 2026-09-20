@@ -83,14 +83,10 @@ namespace QTCAD.Inv25.Services
                     interiorResults.Add($"Radius={cylinder.Radius:F3} | Interior={isInterior}");
                 }
             }
-
-            MessageBox.Show(string.Join(System.Environment.NewLine, interiorResults), "Cylinder Interior Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             HoleDetector holeDetector = new HoleDetector();
+            
             IReadOnlyList<QTCADHoleFeature> holes = holeDetector.Detect(geometry);
-
             string holeResult = string.Join(System.Environment.NewLine, holes.Select(x => $"Hole | Face={x.CylindricalFaceIndex} | Diameter={x.Diameter:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
-
             MessageBox.Show(holeResult.Length > 0 ? holeResult : "No Hole detected", "Hole Detection Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             Box? rangeBox = definition.RangeBox;
