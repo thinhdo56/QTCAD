@@ -14,5 +14,11 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
         public IReadOnlyList<int> BoundaryEdgeIndices { get; init; } = [];
         public IReadOnlyList<int> AdjacentFaceIndices { get; init; } = [];
         public bool IsBlind { get; set; }
+        public double Depth { get; set; }
+        public enum HoleBottomType
+        {
+            Through, Flat, Conical, Unknown
+        }
     }
 }
+    

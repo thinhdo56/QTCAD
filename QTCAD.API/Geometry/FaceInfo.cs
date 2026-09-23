@@ -24,5 +24,7 @@ namespace QTCAD.API.Geometry
         public double AxisY { get; init; }
         public double AxisZ { get; init; }
         public bool IsInterior { get; set; }
+        public double ConeHalfAngle { get; init; }
+        public bool ConeIsExpanding { get; init; }
     }
 }

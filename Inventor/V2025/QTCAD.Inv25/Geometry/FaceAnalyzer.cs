@@ -47,6 +47,8 @@ namespace QTCAD.Inv25.Geometry
             double axisZ = 0.0;
 
             bool isInterior = false;
+            double coneHalfAngle = 0.0;
+            bool coneIsExpanding = false;
 
             if (face.SurfaceType == SurfaceTypeEnum.kCylinderSurface)
             {
@@ -56,6 +58,12 @@ namespace QTCAD.Inv25.Geometry
                 axisY = cylinder.AxisVector.Y;
                 axisZ = cylinder.AxisVector.Z;
                 isInterior = IsInteriorCylindricalFace(face);
+            }
+            if (face.SurfaceType == SurfaceTypeEnum.kConeSurface)
+            {
+                Cone cone = (Cone)face.Geometry;
+                coneHalfAngle = cone.HalfAngle;
+                coneIsExpanding = cone.IsExpanding;
             }
             Box2d paramRange = face.Evaluator.ParamRangeRect;
 
@@ -103,7 +111,9 @@ namespace QTCAD.Inv25.Geometry
                 AxisX = axisX,
                 AxisY = axisY,
                 AxisZ = axisZ,
-                IsInterior = isInterior
+                IsInterior = isInterior,
+                ConeHalfAngle = coneHalfAngle,
+                ConeIsExpanding = coneIsExpanding
             };
         }
     }

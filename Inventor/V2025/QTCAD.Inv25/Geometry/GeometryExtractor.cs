@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+ 
 namespace QTCAD.Inv25.Geometry
 {
     internal sealed class GeometryExtractionResult
@@ -45,8 +45,12 @@ namespace QTCAD.Inv25.Geometry
                             double minParam;
                             double maxParam;
                             double length;
-                            edge.Evaluator.GetParamExtents(out minParam, out maxParam);
-                            edge.Evaluator.GetLengthAtParam(minParam, maxParam, out length);
+                            if (edge == null) continue;
+
+                            CurveEvaluator evaluator = edge.Evaluator;
+                            if (evaluator == null) continue;
+                            evaluator.GetParamExtents(out minParam, out maxParam);
+                            evaluator.GetLengthAtParam(minParam, maxParam, out length);
                             length = unitsOfMeasure.ConvertUnits(length, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits);
 
                             edges.Add(new EdgeInfo
