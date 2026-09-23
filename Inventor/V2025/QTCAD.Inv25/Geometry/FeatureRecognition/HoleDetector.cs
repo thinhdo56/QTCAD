@@ -1,6 +1,7 @@
 ﻿using Inventor;
 using QTCAD.API.Geometry;
 using QTCAD.Inv25.Geometry;
+using QTCAD.Inv25.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,17 +13,14 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
     {
         public IReadOnlyList<HoleFeature> Detect(GeometryExtractionResult geometry)
         {
+            
             List<HoleFeature> holes = [];
 
             foreach (FaceInfo face in geometry.Faces)
             {
                 if (face.Type != "kCylinderSurface") continue;
 
-                List<EdgeInfo> boundaryEdges = face.EdgeIndices
-                    .Select(edgeIndex => geometry.Edges.FirstOrDefault(x => x.Index == edgeIndex))
-                    .Where(x => x != null)
-                    .Cast<EdgeInfo>()
-                    .ToList();
+                List<EdgeInfo> boundaryEdges = face.EdgeIndices.Select(edgeIndex => geometry.Edges.FirstOrDefault(x => x.Index == edgeIndex)).Where(x => x != null).Cast<EdgeInfo>().ToList();
 
                 if (!face.IsInterior) continue;
                 if (boundaryEdges.Count != 2) continue;
@@ -30,9 +28,8 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 
                 FaceAdjacencyAnalyzer adjacencyAnalyzer = new FaceAdjacencyAnalyzer();
                 IReadOnlyList<int> adjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(face, geometry.Edges);
-
+                FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface");
                 if (adjacentFaces.Count != 2) continue;
-                //double depth = 0.0;
                 bool isBlind = IsBlindHole(face, geometry, adjacentFaces);
 
                 double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
@@ -46,9 +43,6 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                     IsBlind = isBlind,
                     Depth = depth
                 });
-                string result = string.Join( System.Environment.NewLine, holes.Select(x => $"Face={x.CylindricalFaceIndex} | Diameter={x.Radius * 2:F3} | Blind={x.IsBlind} | Depth={x.Depth:F3}"));
-                MessageBox.Show(result.Length > 0 ? result : "No Hole detected", "Hole Type Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             }
 
             return holes;
@@ -73,17 +67,30 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
         }
         private double GetBlindHoleDepth(FaceInfo cylinderFace, GeometryExtractionResult geometry, IReadOnlyList<int> adjacentFaces)
         {
-            FaceInfo? bottomFace = adjacentFaces
-                .Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index))
-                .FirstOrDefault(x => x != null && x.IsPlanar && x.EdgeIndices.Count == 1);
-
+            FaceInfo? bottomFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && (x.Type == "kPlaneSurface" || x.Type == "kConeSurface"));
             if (bottomFace == null) return 0.0;
 
             double dx = bottomFace.CenterX - cylinderFace.CenterX;
             double dy = bottomFace.CenterY - cylinderFace.CenterY;
             double dz = bottomFace.CenterZ - cylinderFace.CenterZ;
 
-            return Math.Abs(dx * cylinderFace.AxisX + dy * cylinderFace.AxisY + dz * cylinderFace.AxisZ);
+            double axialDistance = Math.Abs(dx * cylinderFace.AxisX + dy * cylinderFace.AxisY + dz * cylinderFace.AxisZ);
+
+            if (bottomFace.Type == "kPlaneSurface")
+            {
+                return axialDistance * 2.0;
+            }
+
+            if (bottomFace.Type == "kConeSurface")
+            {
+                if (bottomFace.ConeHalfAngle <= 0.0) return 0.0;
+
+                double coneDepth = cylinderFace.Radius / Math.Tan(bottomFace.ConeHalfAngle);
+
+                return axialDistance * 2.0 + coneDepth;
+            }
+
+            return 0.0;
         }
     }
 }

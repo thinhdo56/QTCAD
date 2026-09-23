@@ -1,5 +1,6 @@
 ﻿using Inventor;
 using QTCAD.API.Geometry;
+using QTCAD.Inv25.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,8 +52,7 @@ namespace QTCAD.Inv25.Geometry
                             if (evaluator == null) continue;
                             evaluator.GetParamExtents(out minParam, out maxParam);
                             evaluator.GetLengthAtParam(minParam, maxParam, out length);
-                            length = unitsOfMeasure.ConvertUnits(length, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits);
-
+                            length = ConversionTool.ToModelLength(length, unitsOfMeasure);
                             edges.Add(new EdgeInfo
                             {
                                 Index = edgeIndex,
@@ -83,7 +83,9 @@ namespace QTCAD.Inv25.Geometry
                         AxisX = faceInfo.AxisX,
                         AxisY = faceInfo.AxisY,
                         AxisZ = faceInfo.AxisZ,
-                        IsInterior = faceInfo.IsInterior
+                        IsInterior = faceInfo.IsInterior,
+                        ConeHalfAngle = faceInfo.ConeHalfAngle,
+                        ConeIsExpanding = faceInfo.ConeIsExpanding
                     });
                 }
             }

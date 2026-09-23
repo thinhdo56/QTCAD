@@ -4,6 +4,7 @@ using QTCAD.API.Geometry;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Geometry;
 using QTCAD.Inv25.Geometry.FeatureRecognition;
+using QTCAD.Inv25.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,8 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo? AnalyzePart(PartDocument document)
         {
             PartComponentDefinition definition = document.ComponentDefinition;
-            GeometryExtractionResult geometry = _geometryExtractor.Extract(definition, document.UnitsOfMeasure);
+            UnitsOfMeasure unitsOfMeasure = document.UnitsOfMeasure;
+            GeometryExtractionResult geometry = _geometryExtractor.Extract(definition, unitsOfMeasure);
 
             List<string> interiorResults = new List<string>();
 
@@ -86,13 +88,22 @@ namespace QTCAD.Inv25.Services
             HoleDetector holeDetector = new HoleDetector();
             
             IReadOnlyList<QTCADHoleFeature> holes = holeDetector.Detect(geometry);
-            string holeResult = string.Join(System.Environment.NewLine, holes.Select(x => $"Hole | Face={x.CylindricalFaceIndex} | Diameter={x.Diameter:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]"));
+            string holeResult = string.Join(
+                System.Environment.NewLine,
+                holes.Select(x =>
+                {
+                    double diameter = ConversionTool.ToModelLength(x.Radius * 2,unitsOfMeasure);
+
+                    double depth = ConversionTool.ToModelLength(x.Depth,unitsOfMeasure);
+
+                    return $"Hole | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} | Depth={depth:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
+                })); 
             MessageBox.Show(holeResult.Length > 0 ? holeResult : "No Hole detected", "Hole Detection Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             Box? rangeBox = definition.RangeBox;
             if (rangeBox == null) return null;
 
-            return GetBasicGeometry(document.UnitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, geometry.Edges.Count, geometry.Faces.Count, geometry.Faces, geometry.Edges);
+            return GetBasicGeometry(unitsOfMeasure, rangeBox, definition.SurfaceBodies.Count, 0, geometry.Edges.Count, geometry.Faces.Count, geometry.Faces, geometry.Edges);
         }
         private ModelGeometryInfo? AnalyzeSheetMetal(PartDocument document)
         {
@@ -126,15 +137,15 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure unitsOfMeasure, Box rangeBox, int bodyCount, int occurrenceCount, int edgeCount, int faceCount, IReadOnlyList<FaceInfo> faces, IReadOnlyList<EdgeInfo> edges)
         {
 
-            string unitSymbol = GetUnitSymbol(unitsOfMeasure.GetStringFromType(unitsOfMeasure.LengthUnits));
+            string unitSymbol = ConversionTool.GetUnitSymbol(unitsOfMeasure.GetStringFromType(unitsOfMeasure.LengthUnits));
             double xSize = rangeBox.MaxPoint.X - rangeBox.MinPoint.X;
             double ySize = rangeBox.MaxPoint.Y - rangeBox.MinPoint.Y;
             double zSize = rangeBox.MaxPoint.Z - rangeBox.MinPoint.Z;
             return new ModelGeometryInfo
             {
-                XSize = unitsOfMeasure.ConvertUnits(xSize, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits),
-                YSize = unitsOfMeasure.ConvertUnits(ySize, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits),
-                ZSize = unitsOfMeasure.ConvertUnits(zSize, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits),
+                XSize = ConversionTool.ToModelLength(xSize, unitsOfMeasure),
+                YSize = ConversionTool.ToModelLength(ySize, unitsOfMeasure),
+                ZSize = ConversionTool.ToModelLength(zSize, unitsOfMeasure),
                 Unit = unitSymbol,
                 BodyCount = bodyCount,
                 EdgeCount = edgeCount,
@@ -144,9 +155,6 @@ namespace QTCAD.Inv25.Services
                 Edges = edges
             };
         }
-        private string GetUnitSymbol(string unitName)
-        {
-            return unitName.ToLowerInvariant() switch { "millimeter" => "mm", "centimeter" => "cm", "meter" => "m", "inch" => "in", "foot" => "ft", _ => unitName };
-        }
+
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Inventor;
 using QTCAD.API.Geometry;
 using System.Collections.Generic;
+using QTCAD.Inv25.Utilities;
+using System.Windows.Forms;
 
 namespace QTCAD.Inv25.Geometry
 {
@@ -53,17 +55,21 @@ namespace QTCAD.Inv25.Geometry
             if (face.SurfaceType == SurfaceTypeEnum.kCylinderSurface)
             {
                 Cylinder cylinder = (Cylinder)face.Geometry;
-                radius = unitsOfMeasure.ConvertUnits(cylinder.Radius, UnitsTypeEnum.kDatabaseLengthUnits, unitsOfMeasure.LengthUnits);
+                radius = cylinder.Radius;
                 axisX = cylinder.AxisVector.X;
                 axisY = cylinder.AxisVector.Y;
                 axisZ = cylinder.AxisVector.Z;
                 isInterior = IsInteriorCylindricalFace(face);
             }
+
             if (face.SurfaceType == SurfaceTypeEnum.kConeSurface)
             {
                 Cone cone = (Cone)face.Geometry;
-                coneHalfAngle = cone.HalfAngle;
-                coneIsExpanding = cone.IsExpanding;
+
+                double[] basePoint = new double[3];
+                double[] axisVector = new double[3];
+
+                cone.GetConeData(ref basePoint, ref axisVector, out radius, out coneHalfAngle, out coneIsExpanding);
             }
             Box2d paramRange = face.Evaluator.ParamRangeRect;
 
@@ -94,7 +100,6 @@ namespace QTCAD.Inv25.Geometry
             double[] normals = new double[3];
 
             face.Evaluator.GetNormal(ref normalParams, ref normals);
-
             return new FaceInfo
             {
                 Index = index,
