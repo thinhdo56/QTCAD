@@ -68,6 +68,8 @@
 
     <Copy Condition="Exists('$(TargetDir)QTCAD.Common.dll')" SourceFiles="$(TargetDir)QTCAD.Common.dll" DestinationFolder="$(InventorAddinDir)" SkipUnchangedFiles="true" />
 
+    <Copy Condition="Exists('$(TargetDir)QTCAD.Core.dll')" SourceFiles="$(TargetDir)QTCAD.Core.dll" DestinationFolder="$(InventorAddinDir)" SkipUnchangedFiles="true" />
+
     <Copy SourceFiles="$(ProjectDir)QTCAD.Inv25.addin" DestinationFolder="$(InventorAddinDir)" SkipUnchangedFiles="true" />
 
     <Copy Condition="Exists('$(TargetPath).pdb')" SourceFiles="$(TargetPath).pdb" DestinationFolder="$(InventorAddinDir)" SkipUnchangedFiles="true" />

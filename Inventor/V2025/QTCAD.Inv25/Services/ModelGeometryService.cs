@@ -1,6 +1,7 @@
 ﻿using Inventor;
 using QTCAD.API.Drawing;
 using QTCAD.API.Geometry;
+using QTCAD.Core.Features;
 using QTCAD.Core.Geometry;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Geometry;
@@ -97,7 +98,7 @@ namespace QTCAD.Inv25.Services
 
                     double depth = ConversionTool.ToModelLength(x.Depth,unitsOfMeasure);
                     string unit = ConversionTool.GetUnitSymbol(unitsOfMeasure);
-                    return $"Hole | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} {unit} | Depth={depth:F3} {unit} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
+                    return $"Hole | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} {unit} | Depth={depth:F3} {unit} | BottomType={x.BottomType} | ConeHalfAngle={x.ConeHalfAngle:F6} | ConeIsExpanding={x.ConeIsExpanding} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
                 })); 
             MessageBox.Show(holeResult.Length > 0 ? holeResult : "No Hole detected", "Hole Detection Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

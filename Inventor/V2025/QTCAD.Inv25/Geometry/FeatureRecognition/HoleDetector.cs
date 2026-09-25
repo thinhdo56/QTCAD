@@ -1,13 +1,15 @@
 ﻿using Inventor;
+using QTCAD.Core.Features;
 using QTCAD.Core.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static QTCAD.Core.Features.HoleFeature;
 using QTCADHoleFeature = QTCAD.Core.Features.HoleFeature;
 
 namespace QTCAD.Inv25.Geometry.FeatureRecognition
 {
-    internal sealed class HoleDetector
+    internal sealed class HoleDetector: IFeatureDetector<QTCADHoleFeature>
     {
         public IReadOnlyList<QTCADHoleFeature> Detect(GeometryExtractionResult geometry)
         {
@@ -23,6 +25,7 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                 if (!face.IsInterior) continue;
                 if (boundaryEdges.Count != 2) continue;
                 if (!boundaryEdges.All(x => x.IsCircular)) continue;
+                HoleBottomType bottomType = HoleBottomType.Unknown;
 
                 FaceAdjacencyAnalyzer adjacencyAnalyzer = new FaceAdjacencyAnalyzer();
                 IReadOnlyList<int> adjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(face, geometry.Edges);
@@ -30,16 +33,68 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                 if (adjacentFaces.Count != 2) continue;
                 bool isBlind = IsBlindHole(face, geometry, adjacentFaces);
 
+                if (!isBlind)
+                {
+                    bottomType = HoleBottomType.Through;
+                }
+                else
+                {
+                    FaceInfo? bottomFace = adjacentFaces
+                        .Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index))
+                        .FirstOrDefault(x =>
+                            x != null &&
+                            (x.Type == "kPlaneSurface" ||
+                             x.Type == "kConeSurface"));
+
+                    if (bottomFace != null)
+                    {
+                        bottomType = bottomFace.Type switch
+                        {
+                            "kPlaneSurface" => HoleBottomType.Flat,
+                            "kConeSurface" => HoleBottomType.Conical,
+                            _ => HoleBottomType.Unknown
+                        };
+                    }
+                }
                 double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
 
                 holes.Add(new QTCADHoleFeature
                 {
-                    CylindricalFaceIndex = face.Index,
+                    Id = face.Index,
+
+                    Type = "Hole",
+
+                    Name = $"Hole_{face.Index}",
+
+                    FaceIndices = new[] { face.Index },
+
+                    EdgeIndices = face.EdgeIndices,
+
+                    CenterX = face.CenterX,
+                    CenterY = face.CenterY,
+                    CenterZ = face.CenterZ,
+
+                    AxisX = face.AxisX,
+                    AxisY = face.AxisY,
+                    AxisZ = face.AxisZ,
+
                     Radius = face.Radius,
+
+                    CylindricalFaceIndex = face.Index,
+
                     BoundaryEdgeIndices = face.EdgeIndices,
+
                     AdjacentFaceIndices = adjacentFaces,
+
                     IsBlind = isBlind,
-                    Depth = depth
+
+                    Depth = depth,
+
+                    Source = "RuleBased",
+
+                    Confidence = 1.0,
+
+                    BottomType = bottomType
                 });
             }
 

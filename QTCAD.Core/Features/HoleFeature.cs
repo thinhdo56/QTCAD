@@ -10,6 +10,10 @@ namespace QTCAD.Core.Features
         public IReadOnlyList<int> AdjacentFaceIndices { get; init; } = [];
         public bool IsBlind { get; set; }
         public double Depth { get; set; }
+        public HoleBottomType BottomType { get; init; }
+        public object ConeHalfAngle { get; set; }
+        public object ConeIsExpanding { get; set; }
+
         public enum HoleBottomType
         {
             Through, Flat, Conical, Unknown
