@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.37614.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.Inv25", "Inventor\V2025\QTCAD.Inv25\QTCAD.Inv25.csproj", "{48A14A69-4EAB-4393-A879-323831F32573}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B} = {BBB44D14-5EFB-4010-81B6-B307F7042A2B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.Common", "QTCAD.Common\QTCAD.Common.csproj", "{24A8D848-44DD-43B6-984F-060993A7F006}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.Common", "QTCAD.Commo
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.API", "QTCAD.API\QTCAD.API.csproj", "{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QTCAD.Core", "QTCAD.Core\QTCAD.Core.csproj", "{BBB44D14-5EFB-4010-81B6-B307F7042A2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +49,14 @@ Global
 		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|x64.ActiveCfg = Release|x64
 		{9EAF26D9-8179-4BC0-8FB0-1B18E669773C}.Release|x64.Build.0 = Release|x64
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Debug|x64.Build.0 = Debug|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Release|x64.ActiveCfg = Release|Any CPU
+		{BBB44D14-5EFB-4010-81B6-B307F7042A2B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

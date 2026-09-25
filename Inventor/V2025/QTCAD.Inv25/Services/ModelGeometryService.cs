@@ -95,8 +95,8 @@ namespace QTCAD.Inv25.Services
                     double diameter = ConversionTool.ToModelLength(x.Radius * 2,unitsOfMeasure);
 
                     double depth = ConversionTool.ToModelLength(x.Depth,unitsOfMeasure);
-
-                    return $"Hole | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} | Depth={depth:F3} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
+                    string unit = ConversionTool.GetUnitSymbol(unitsOfMeasure);
+                    return $"Hole | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} {unit} | Depth={depth:F3} {unit} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
                 })); 
             MessageBox.Show(holeResult.Length > 0 ? holeResult : "No Hole detected", "Hole Detection Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -137,7 +137,7 @@ namespace QTCAD.Inv25.Services
         private ModelGeometryInfo GetBasicGeometry(UnitsOfMeasure unitsOfMeasure, Box rangeBox, int bodyCount, int occurrenceCount, int edgeCount, int faceCount, IReadOnlyList<FaceInfo> faces, IReadOnlyList<EdgeInfo> edges)
         {
 
-            string unitSymbol = ConversionTool.GetUnitSymbol(unitsOfMeasure.GetStringFromType(unitsOfMeasure.LengthUnits));
+            string unitSymbol = ConversionTool.GetUnitSymbol(unitsOfMeasure);
             double xSize = rangeBox.MaxPoint.X - rangeBox.MinPoint.X;
             double ySize = rangeBox.MaxPoint.Y - rangeBox.MinPoint.Y;
             double zSize = rangeBox.MaxPoint.Z - rangeBox.MinPoint.Z;

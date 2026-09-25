@@ -17,8 +17,9 @@ namespace QTCAD.Inv25.Utilities
         {
             return unitsOfMeasure.ConvertUnits(value,sourceUnits,UnitsTypeEnum.kDatabaseLengthUnits);
         }
-        public static string GetUnitSymbol(string unitName)
+        public static string GetUnitSymbol(UnitsOfMeasure unitsOfMeasure)
         {
+            string unitName = unitsOfMeasure.GetStringFromType(unitsOfMeasure.LengthUnits);
             return unitName.ToLowerInvariant() switch { "millimeter" => "mm", "centimeter" => "cm", "meter" => "m", "inch" => "in", "foot" => "ft", _ => unitName };
         }
     }
