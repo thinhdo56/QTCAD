@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace QTCAD.Core.Features
 {
-    public class QTCADFeature
+    public abstract class QTCADFeature
     {
         // Identity
         public int Id { get; init; }
