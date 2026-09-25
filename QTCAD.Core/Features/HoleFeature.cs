@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace QTCAD.Inv25.Geometry.FeatureRecognition
+﻿
+namespace QTCAD.Core.Features
 {
-    internal sealed class HoleFeature
+    public sealed class HoleFeature: QTCADFeature
     {
         public int CylindricalFaceIndex { get; init; }
         public double Radius { get; init; }

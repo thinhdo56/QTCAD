@@ -1,19 +1,14 @@
 ﻿using Inventor;
-using QTCAD.API.Geometry;
+using QTCAD.Core.Geometry;
 using QTCAD.Inv25.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
- 
+
 namespace QTCAD.Inv25.Geometry
 {
-    internal sealed class GeometryExtractionResult
-    {
-        public IReadOnlyList<FaceInfo> Faces { get; init; } = [];
-        public IReadOnlyList<EdgeInfo> Edges { get; init; } = [];
-    }
     internal sealed class GeometryExtractor
     {
         private readonly FaceAnalyzer _faceAnalyzer;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QTCAD.API.Geometry
+namespace QTCAD.Core.Geometry
 {
     public sealed class FaceInfo
     {

@@ -1,8 +1,8 @@
 ﻿using Inventor;
-using QTCAD.API.Geometry;
 using System.Collections.Generic;
 using QTCAD.Inv25.Utilities;
 using System.Windows.Forms;
+using QTCAD.Core.Geometry;
 
 namespace QTCAD.Inv25.Geometry
 {

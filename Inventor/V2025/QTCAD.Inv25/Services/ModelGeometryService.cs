@@ -1,6 +1,7 @@
 ﻿using Inventor;
 using QTCAD.API.Drawing;
 using QTCAD.API.Geometry;
+using QTCAD.Core.Geometry;
 using QTCAD.Inv25.Adapter;
 using QTCAD.Inv25.Geometry;
 using QTCAD.Inv25.Geometry.FeatureRecognition;
@@ -9,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using QTCADHoleFeature = QTCAD.Inv25.Geometry.FeatureRecognition.HoleFeature;
+using QTCADHoleFeature = QTCAD.Core.Features.HoleFeature;
 
 namespace QTCAD.Inv25.Services
 {

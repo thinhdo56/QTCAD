@@ -1,20 +1,18 @@
 ﻿using Inventor;
-using QTCAD.API.Geometry;
-using QTCAD.Inv25.Geometry;
-using QTCAD.Inv25.Utilities;
+using QTCAD.Core.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
+using QTCADHoleFeature = QTCAD.Core.Features.HoleFeature;
 
 namespace QTCAD.Inv25.Geometry.FeatureRecognition
 {
     internal sealed class HoleDetector
     {
-        public IReadOnlyList<HoleFeature> Detect(GeometryExtractionResult geometry)
+        public IReadOnlyList<QTCADHoleFeature> Detect(GeometryExtractionResult geometry)
         {
             
-            List<HoleFeature> holes = [];
+            List<QTCADHoleFeature> holes = [];
 
             foreach (FaceInfo face in geometry.Faces)
             {
@@ -34,7 +32,7 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 
                 double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
 
-                holes.Add(new HoleFeature
+                holes.Add(new QTCADHoleFeature
                 {
                     CylindricalFaceIndex = face.Index,
                     Radius = face.Radius,

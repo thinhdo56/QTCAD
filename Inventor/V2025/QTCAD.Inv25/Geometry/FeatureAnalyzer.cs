@@ -1,4 +1,4 @@
-﻿using QTCAD.API.Geometry;
+﻿using QTCAD.Core.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;

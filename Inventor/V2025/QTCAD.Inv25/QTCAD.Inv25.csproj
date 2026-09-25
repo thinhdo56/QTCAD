@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\QTCAD.API\QTCAD.API.csproj" />
     <ProjectReference Include="..\..\..\QTCAD.Common\QTCAD.Common.csproj" />
+    <ProjectReference Include="..\..\..\QTCAD.Core\QTCAD.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
