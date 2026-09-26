@@ -31,19 +31,6 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 
                 FaceAdjacencyAnalyzer adjacencyAnalyzer = new FaceAdjacencyAnalyzer();
                 IReadOnlyList<int> adjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(face, geometry.Edges);
-                double coneHalfAngle = 0.0;
-                bool coneIsExpanding = false;
-
-                if (bottomType == HoleBottomType.Conical)
-                {
-                    FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface");
-
-                    if (coneFace != null)
-                    {
-                        coneHalfAngle = coneFace.ConeHalfAngle;
-                        coneIsExpanding = coneFace.ConeIsExpanding;
-                    }
-                }
                 if (adjacentFaces.Count != 2) continue;
                 bool isBlind = IsBlindHole(face, geometry, adjacentFaces);
 
@@ -65,22 +52,33 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                         };
                     }
                 }
-                double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
-                string coneDebug = string.Join("\n",adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).Where(x => x != null).Select(x =>$"Face={x.Index} | Type={x.Type} | Radius={x.Radius:F6} | ConeHalfAngle={x.ConeHalfAngle:F6} | ConeIsExpanding={x.ConeIsExpanding}"));
+                double coneHalfAngle = 0.0;
+                bool coneIsExpanding = false;
 
-                MessageBox.Show( coneDebug,$"Hole Face={face.Index} Adjacent Faces",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                if (bottomType == HoleBottomType.Conical)
+                {
+                    FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface");
+
+                    if (coneFace != null)
+                    {
+                        coneHalfAngle = coneFace.ConeHalfAngle;
+                        coneIsExpanding = coneFace.ConeIsExpanding;
+                    }
+                }
+                double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
+
                 holes.Add(new QTCADHoleFeature
                 {
+                    // 1. Identity
                     Id = face.Index,
-
                     Type = "Hole",
-
                     Name = $"Hole_{face.Index}",
 
+                    // 2. Generic topology
                     FaceIndices = new[] { face.Index },
-
                     EdgeIndices = face.EdgeIndices,
 
+                    // 3. Generic geometry
                     CenterX = face.CenterX,
                     CenterY = face.CenterY,
                     CenterZ = face.CenterZ,
@@ -89,24 +87,26 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                     AxisY = face.AxisY,
                     AxisZ = face.AxisZ,
 
+                    // 4. Hole geometry
                     Radius = face.Radius,
 
+                    // 5. Hole topology
                     CylindricalFaceIndex = face.Index,
-
                     BoundaryEdgeIndices = face.EdgeIndices,
-
                     AdjacentFaceIndices = adjacentFaces,
 
+                    // 6. Hole characteristics
                     IsBlind = isBlind,
-
                     Depth = depth,
-
-                    Source = "RuleBased",
-
-                    Confidence = 1.0,
                     BottomType = bottomType,
+
+                    // 7. Cone characteristics
                     ConeHalfAngle = coneHalfAngle,
-                    ConeIsExpanding = coneIsExpanding
+                    ConeIsExpanding = coneIsExpanding,
+
+                    // 8. Recognition metadata
+                    Source = "RuleBased",
+                    Confidence = 1.0
                 });
             }
 
