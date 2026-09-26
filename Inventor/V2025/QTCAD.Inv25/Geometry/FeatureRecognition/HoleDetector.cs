@@ -13,27 +13,66 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 {
     internal sealed class HoleDetector: IFeatureDetector<QTCADHoleFeature>
     {
+        private readonly CounterboreDetector _counterboreDetector = new();
+        private readonly CountersinkDetector _countersinkDetector = new();
         public IReadOnlyList<QTCADHoleFeature> Detect(GeometryExtractionResult geometry)
         {
-            
+            HashSet<int> consumedFaceIndices = [];
             List<QTCADHoleFeature> holes = [];
 
             foreach (FaceInfo face in geometry.Faces)
             {
-
                 if (face.Type != "kCylinderSurface") continue;
+                if (consumedFaceIndices.Contains(face.Index)) continue;
 
                 List<EdgeInfo> boundaryEdges = face.EdgeIndices.Select(edgeIndex => geometry.Edges.FirstOrDefault(x => x.Index == edgeIndex)).Where(x => x != null).Cast<EdgeInfo>().ToList();
 
                 if (!face.IsInterior) continue;
                 if (boundaryEdges.Count != 2) continue;
                 if (!boundaryEdges.All(x => x.IsCircular)) continue;
-                HoleBottomType bottomType = HoleBottomType.Unknown;
 
                 FaceAdjacencyAnalyzer adjacencyAnalyzer = new FaceAdjacencyAnalyzer();
                 IReadOnlyList<int> adjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(face, geometry.Edges);
 
-                bool isBlind = IsBlindHole(face, geometry, adjacentFaces);
+                bool hasCounterbore = _counterboreDetector.TryDetect(face, geometry, out FaceInfo? secondaryCylinder);
+
+                HoleType holeType = HoleType.Simple;
+                FaceInfo mainCylinder = face;
+                FaceInfo? counterboreCylinder = null;
+                FaceInfo? countersinkCone = null;
+                EdgeInfo? countersinkEdge = null;
+
+                if (hasCounterbore && secondaryCylinder != null)
+                {
+                    holeType = HoleType.Counterbore;
+
+                    if (face.Radius <= secondaryCylinder.Radius)
+                    {
+                        mainCylinder = face;
+                        counterboreCylinder = secondaryCylinder;
+                    }
+                    else
+                    {
+                        mainCylinder = secondaryCylinder;
+                        counterboreCylinder = face;
+                    }
+
+                    consumedFaceIndices.Add(face.Index);
+                    consumedFaceIndices.Add(secondaryCylinder.Index);
+                }
+                else
+                {
+                    if (!IsBlindHole(face, geometry, adjacentFaces) && _countersinkDetector.TryDetect(face, geometry, out countersinkCone, out countersinkEdge))
+                    {
+                        holeType = HoleType.Countersink;
+                    }
+                }
+
+                IReadOnlyList<int> mainAdjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(mainCylinder, geometry.Edges);
+
+                bool isBlind = IsBlindHole(mainCylinder, geometry, mainAdjacentFaces);
+
+                HoleBottomType bottomType = HoleBottomType.Unknown;
                 double coneHalfAngle = 0.0;
                 bool coneIsExpanding = false;
 
@@ -43,71 +82,69 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                 }
                 else
                 {
-                    FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().FirstOrDefault(x => x.Type == "kConeSurface");
-                    FaceInfo? planeFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().FirstOrDefault(x => x.Type == "kPlaneSurface");
+                    FaceInfo? coneFace = mainAdjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().FirstOrDefault(x => x.Type == "kConeSurface");
+                    FaceInfo? planeFace = mainAdjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().FirstOrDefault(x => x.Type == "kPlaneSurface");
 
                     if (coneFace != null)
                     {
                         bottomType = HoleBottomType.Conical;
                         coneHalfAngle = coneFace.ConeHalfAngle;
                         coneIsExpanding = coneFace.ConeIsExpanding;
-
                     }
                     else if (planeFace != null)
                     {
                         bottomType = HoleBottomType.Flat;
                     }
-                    else
-                    {
-                        bottomType = HoleBottomType.Unknown;
-                    }
                 }
 
-                double depth = isBlind ? GetBlindHoleDepth(face, geometry) : 0.0;
+                double depth = isBlind ? GetBlindHoleDepth(mainCylinder, geometry) : GetCylinderDepth(mainCylinder, geometry.Edges);
+                double secondaryDepth = counterboreCylinder != null ? GetCylinderDepth(counterboreCylinder, geometry.Edges) : 0.0;
 
                 holes.Add(new QTCADHoleFeature
                 {
-                    // 1. Identity
-                    Id = face.Index,
+                    Id = mainCylinder.Index,
                     Type = "Hole",
-                    Name = $"Hole_{face.Index}",
+                    Name = $"Hole_{mainCylinder.Index}",
 
-                    // 2. Generic topology
-                    FaceIndices = new[] { face.Index },
-                    EdgeIndices = face.EdgeIndices,
+                    FaceIndices = counterboreCylinder != null ? new[] { mainCylinder.Index, counterboreCylinder.Index } : new[] { mainCylinder.Index },
+                    EdgeIndices = counterboreCylinder != null ? mainCylinder.EdgeIndices.Concat(counterboreCylinder.EdgeIndices).Distinct().ToArray() : mainCylinder.EdgeIndices,
 
-                    // 3. Generic geometry
-                    CenterX = face.CenterX,
-                    CenterY = face.CenterY,
-                    CenterZ = face.CenterZ,
+                    CenterX = mainCylinder.CenterX,
+                    CenterY = mainCylinder.CenterY,
+                    CenterZ = mainCylinder.CenterZ,
 
-                    AxisX = face.AxisX,
-                    AxisY = face.AxisY,
-                    AxisZ = face.AxisZ,
+                    AxisX = mainCylinder.AxisX,
+                    AxisY = mainCylinder.AxisY,
+                    AxisZ = mainCylinder.AxisZ,
 
-                    // 4. Hole geometry
-                    Radius = face.Radius,
+                    Radius = mainCylinder.Radius,
 
-                    // 5. Hole topology
-                    CylindricalFaceIndex = face.Index,
-                    BoundaryEdgeIndices = face.EdgeIndices,
-                    AdjacentFaceIndices = adjacentFaces,
+                    CylindricalFaceIndex = mainCylinder.Index,
+                    BoundaryEdgeIndices = mainCylinder.EdgeIndices,
+                    AdjacentFaceIndices = mainAdjacentFaces,
 
-                    // 6. Hole characteristics
                     IsBlind = isBlind,
                     Depth = depth,
                     BottomType = bottomType,
 
-                    // 7. Cone characteristics
                     ConeHalfAngle = coneHalfAngle,
                     ConeIsExpanding = coneIsExpanding,
 
-                    // 8. Recognition metadata
                     Source = "RuleBased",
-                    Confidence = 1.0
+                    Confidence = 1.0,
+
+                    TypeOfHole = holeType,
+
+                    SecondaryCylindricalFaceIndex = counterboreCylinder?.Index ?? -1,
+                    SecondaryRadius = counterboreCylinder?.Radius ?? 0.0,
+                    SecondaryDepth = secondaryDepth,
+
+                    ProfileFaceIndices = counterboreCylinder != null ? new[] { mainCylinder.Index, counterboreCylinder.Index } : new[] { mainCylinder.Index },
+                    ProfileEdgeIndices = counterboreCylinder != null ? mainCylinder.EdgeIndices.Concat(counterboreCylinder.EdgeIndices).Distinct().ToArray() : mainCylinder.EdgeIndices,
+
+                    CountersinkAngle = countersinkCone?.ConeHalfAngle ?? 0.0
                 });
             }
-
             return holes;
         }
         private bool IsBlindHole(FaceInfo cylinderFace, GeometryExtractionResult geometry, IReadOnlyList<int> adjacentFaces)

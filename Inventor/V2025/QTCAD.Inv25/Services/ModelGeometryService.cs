@@ -10,6 +10,7 @@ using QTCAD.Inv25.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Windows.Forms;
 using QTCADHoleFeature = QTCAD.Core.Features.HoleFeature;
 
@@ -98,7 +99,7 @@ namespace QTCAD.Inv25.Services
 
                     double depth = ConversionTool.ToModelLength(x.Depth,unitsOfMeasure);
                     string unit = ConversionTool.GetUnitSymbol(unitsOfMeasure);
-                    return $"Hole | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} {unit} | Depth={depth:F3} {unit} | BottomType={x.BottomType} | ConeHalfAngle={x.ConeHalfAngle:F6} | ConeIsExpanding={x.ConeIsExpanding} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
+                    return $"{x.Name} | Face={x.CylindricalFaceIndex} | Diameter={diameter:F3} {unit} | Depth={depth:F3} {unit} | BottomType={x.BottomType} | ConeHalfAngle={x.ConeHalfAngle:F6} | ConeIsExpanding={x.ConeIsExpanding} | Edges=[{string.Join(", ", x.BoundaryEdgeIndices)}] | AdjacentFaces=[{string.Join(", ", x.AdjacentFaceIndices)}]";
                 })); 
             MessageBox.Show(holeResult.Length > 0 ? holeResult : "No Hole detected", "Hole Detection Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
