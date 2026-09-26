@@ -11,8 +11,8 @@ namespace QTCAD.Core.Features
         public bool IsBlind { get; set; }
         public double Depth { get; set; }
         public HoleBottomType BottomType { get; init; }
-        public object ConeHalfAngle { get; set; }
-        public object ConeIsExpanding { get; set; }
+        public double ConeHalfAngle { get; init; }
+        public bool ConeIsExpanding { get; init; }
 
         public enum HoleBottomType
         {

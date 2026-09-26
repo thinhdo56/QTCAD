@@ -4,6 +4,7 @@ using QTCAD.Core.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms;
 using static QTCAD.Core.Features.HoleFeature;
 using QTCADHoleFeature = QTCAD.Core.Features.HoleFeature;
 
@@ -18,6 +19,7 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 
             foreach (FaceInfo face in geometry.Faces)
             {
+
                 if (face.Type != "kCylinderSurface") continue;
 
                 List<EdgeInfo> boundaryEdges = face.EdgeIndices.Select(edgeIndex => geometry.Edges.FirstOrDefault(x => x.Index == edgeIndex)).Where(x => x != null).Cast<EdgeInfo>().ToList();
@@ -29,7 +31,19 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 
                 FaceAdjacencyAnalyzer adjacencyAnalyzer = new FaceAdjacencyAnalyzer();
                 IReadOnlyList<int> adjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(face, geometry.Edges);
-                FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface");
+                double coneHalfAngle = 0.0;
+                bool coneIsExpanding = false;
+
+                if (bottomType == HoleBottomType.Conical)
+                {
+                    FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface");
+
+                    if (coneFace != null)
+                    {
+                        coneHalfAngle = coneFace.ConeHalfAngle;
+                        coneIsExpanding = coneFace.ConeIsExpanding;
+                    }
+                }
                 if (adjacentFaces.Count != 2) continue;
                 bool isBlind = IsBlindHole(face, geometry, adjacentFaces);
 
@@ -39,12 +53,7 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                 }
                 else
                 {
-                    FaceInfo? bottomFace = adjacentFaces
-                        .Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index))
-                        .FirstOrDefault(x =>
-                            x != null &&
-                            (x.Type == "kPlaneSurface" ||
-                             x.Type == "kConeSurface"));
+                    FaceInfo? bottomFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x =>x != null &&(x.Type == "kPlaneSurface" ||x.Type == "kConeSurface"));
 
                     if (bottomFace != null)
                     {
@@ -57,7 +66,9 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                     }
                 }
                 double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
+                string coneDebug = string.Join("\n",adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).Where(x => x != null).Select(x =>$"Face={x.Index} | Type={x.Type} | Radius={x.Radius:F6} | ConeHalfAngle={x.ConeHalfAngle:F6} | ConeIsExpanding={x.ConeIsExpanding}"));
 
+                MessageBox.Show( coneDebug,$"Hole Face={face.Index} Adjacent Faces",MessageBoxButtons.OK,MessageBoxIcon.Information);
                 holes.Add(new QTCADHoleFeature
                 {
                     Id = face.Index,
@@ -93,8 +104,9 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                     Source = "RuleBased",
 
                     Confidence = 1.0,
-
-                    BottomType = bottomType
+                    BottomType = bottomType,
+                    ConeHalfAngle = coneHalfAngle,
+                    ConeIsExpanding = coneIsExpanding
                 });
             }
 
@@ -120,8 +132,19 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
         }
         private double GetBlindHoleDepth(FaceInfo cylinderFace, GeometryExtractionResult geometry, IReadOnlyList<int> adjacentFaces)
         {
-            FaceInfo? bottomFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && (x.Type == "kPlaneSurface" || x.Type == "kConeSurface"));
-            if (bottomFace == null) return 0.0;
+            FaceInfo? bottomFace;
+            if (adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface") is FaceInfo coneFace)
+            {
+                bottomFace = coneFace;
+            }
+            else
+            {
+                bottomFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kPlaneSurface");
+            }
+            if (bottomFace == null)
+            {
+                return 0.0;
+            }
 
             double dx = bottomFace.CenterX - cylinderFace.CenterX;
             double dy = bottomFace.CenterY - cylinderFace.CenterY;
