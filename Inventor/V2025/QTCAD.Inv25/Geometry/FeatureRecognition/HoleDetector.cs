@@ -4,6 +4,7 @@ using QTCAD.Core.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Windows.Forms;
 using static QTCAD.Core.Features.HoleFeature;
 using QTCADHoleFeature = QTCAD.Core.Features.HoleFeature;
@@ -31,8 +32,10 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
 
                 FaceAdjacencyAnalyzer adjacencyAnalyzer = new FaceAdjacencyAnalyzer();
                 IReadOnlyList<int> adjacentFaces = adjacencyAnalyzer.GetAdjacentFaceIndices(face, geometry.Edges);
-                if (adjacentFaces.Count != 2) continue;
+
                 bool isBlind = IsBlindHole(face, geometry, adjacentFaces);
+                double coneHalfAngle = 0.0;
+                bool coneIsExpanding = false;
 
                 if (!isBlind)
                 {
@@ -40,32 +43,27 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
                 }
                 else
                 {
-                    FaceInfo? bottomFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x =>x != null &&(x.Type == "kPlaneSurface" ||x.Type == "kConeSurface"));
-
-                    if (bottomFace != null)
-                    {
-                        bottomType = bottomFace.Type switch
-                        {
-                            "kPlaneSurface" => HoleBottomType.Flat,
-                            "kConeSurface" => HoleBottomType.Conical,
-                            _ => HoleBottomType.Unknown
-                        };
-                    }
-                }
-                double coneHalfAngle = 0.0;
-                bool coneIsExpanding = false;
-
-                if (bottomType == HoleBottomType.Conical)
-                {
-                    FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface");
+                    FaceInfo? coneFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().FirstOrDefault(x => x.Type == "kConeSurface");
+                    FaceInfo? planeFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().FirstOrDefault(x => x.Type == "kPlaneSurface");
 
                     if (coneFace != null)
                     {
+                        bottomType = HoleBottomType.Conical;
                         coneHalfAngle = coneFace.ConeHalfAngle;
                         coneIsExpanding = coneFace.ConeIsExpanding;
+
+                    }
+                    else if (planeFace != null)
+                    {
+                        bottomType = HoleBottomType.Flat;
+                    }
+                    else
+                    {
+                        bottomType = HoleBottomType.Unknown;
                     }
                 }
-                double depth = isBlind ? GetBlindHoleDepth(face, geometry, adjacentFaces) : 0.0;
+
+                double depth = isBlind ? GetBlindHoleDepth(face, geometry) : 0.0;
 
                 holes.Add(new QTCADHoleFeature
                 {
@@ -118,55 +116,58 @@ namespace QTCAD.Inv25.Geometry.FeatureRecognition
             {
                 FaceInfo? adjacentFace = geometry.Faces.FirstOrDefault(x => x.Index == faceIndex);
                 if (adjacentFace == null) continue;
-
                 if (adjacentFace.Type != "kPlaneSurface" && adjacentFace.Type != "kConeSurface") continue;
 
-                if (adjacentFace.EdgeIndices.Count != 1) continue;
+                foreach (int edgeIndex in adjacentFace.EdgeIndices)
+                {
+                    EdgeInfo? edge = geometry.Edges.FirstOrDefault(x => x.Index == edgeIndex);
+                    if (edge == null || !edge.IsCircular) continue;
+                    if (!cylinderFace.EdgeIndices.Contains(edge.Index)) continue;
 
-                EdgeInfo? edge = geometry.Edges.FirstOrDefault(x => x.Index == adjacentFace.EdgeIndices[0]);
-                if (edge == null || !edge.IsCircular) continue;
-
-                return true;
+                    return true;
+                }
             }
+
             return false;
         }
-        private double GetBlindHoleDepth(FaceInfo cylinderFace, GeometryExtractionResult geometry, IReadOnlyList<int> adjacentFaces)
+        private static double GetBlindHoleDepth(FaceInfo cylinderFace, GeometryExtractionResult geometry)
         {
-            FaceInfo? bottomFace;
-            if (adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kConeSurface") is FaceInfo coneFace)
-            {
-                bottomFace = coneFace;
-            }
-            else
-            {
-                bottomFace = adjacentFaces.Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).FirstOrDefault(x => x != null && x.Type == "kPlaneSurface");
-            }
-            if (bottomFace == null)
-            {
-                return 0.0;
-            }
+            double cylinderDepth = GetCylinderDepth(cylinderFace, geometry.Edges);
 
-            double dx = bottomFace.CenterX - cylinderFace.CenterX;
-            double dy = bottomFace.CenterY - cylinderFace.CenterY;
-            double dz = bottomFace.CenterZ - cylinderFace.CenterZ;
-
-            double axialDistance = Math.Abs(dx * cylinderFace.AxisX + dy * cylinderFace.AxisY + dz * cylinderFace.AxisZ);
-
-            if (bottomFace.Type == "kPlaneSurface")
+            foreach (int edgeIndex in cylinderFace.EdgeIndices)
             {
-                return axialDistance * 2.0;
+                EdgeInfo? edge = geometry.Edges.FirstOrDefault(x => x.Index == edgeIndex);
+                if (edge == null || !edge.IsCircular) continue;
+
+                List<FaceInfo> connectedFaces = edge.AdjacentFaceIndices.Where(index => index != cylinderFace.Index).Select(index => geometry.Faces.FirstOrDefault(x => x.Index == index)).OfType<FaceInfo>().ToList();
+
+                FaceInfo? coneFace = connectedFaces.FirstOrDefault(x => x.Type == "kConeSurface");
+
+                if (coneFace != null)
+                {
+                    double angle = coneFace.ConeHalfAngle;
+                    if (angle <= 0.0) return cylinderDepth;
+
+                    double coneDepth = cylinderFace.Radius / Math.Tan(angle);
+                    return cylinderDepth + coneDepth;
+                }
             }
 
-            if (bottomFace.Type == "kConeSurface")
-            {
-                if (bottomFace.ConeHalfAngle <= 0.0) return 0.0;
+            return cylinderDepth;
+        }
+        private static double GetCylinderDepth(FaceInfo cylinderFace, IReadOnlyList<EdgeInfo> edges)
+        {
+            List<EdgeInfo> circularEdges = cylinderFace.EdgeIndices.Select(index => edges.FirstOrDefault(x => x.Index == index)).OfType<EdgeInfo>().Where(x => x.IsCircular).ToList();
+            if (circularEdges.Count != 2) return 0.0;
 
-                double coneDepth = cylinderFace.Radius / Math.Tan(bottomFace.ConeHalfAngle);
+            EdgeInfo edge1 = circularEdges[0];
+            EdgeInfo edge2 = circularEdges[1];
 
-                return axialDistance * 2.0 + coneDepth;
-            }
+            double dx = edge2.CenterX - edge1.CenterX;
+            double dy = edge2.CenterY - edge1.CenterY;
+            double dz = edge2.CenterZ - edge1.CenterZ;
 
-            return 0.0;
+            return Math.Abs(dx * cylinderFace.AxisX + dy * cylinderFace.AxisY + dz * cylinderFace.AxisZ);
         }
     }
 }

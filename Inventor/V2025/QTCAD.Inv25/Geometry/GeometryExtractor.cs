@@ -32,6 +32,7 @@ namespace QTCAD.Inv25.Geometry
 
                     foreach (Edge edge in face.Edges)
                     {
+                        if (edge == null) continue;
                         int hash = edge.GetHashCode();
 
                         if (!edgeMap.TryGetValue(hash, out int edgeIndex))
@@ -41,20 +42,42 @@ namespace QTCAD.Inv25.Geometry
                             double minParam;
                             double maxParam;
                             double length;
-                            if (edge == null) continue;
 
                             CurveEvaluator evaluator = edge.Evaluator;
                             if (evaluator == null) continue;
+
                             evaluator.GetParamExtents(out minParam, out maxParam);
                             evaluator.GetLengthAtParam(minParam, maxParam, out length);
+
                             length = ConversionTool.ToModelLength(length, unitsOfMeasure);
+
+                            double centerX = 0.0;
+                            double centerY = 0.0;
+                            double centerZ = 0.0;
+
+                            bool isCircular = edge.CurveType == CurveTypeEnum.kCircleCurve;
+                            bool isLinear = edge.CurveType == CurveTypeEnum.kLineSegmentCurve;
+
+                            if (isCircular)
+                            {
+                                Circle circle = (Circle)edge.Geometry;
+                                Point center = circle.Center;
+
+                                centerX = center.X;
+                                centerY = center.Y;
+                                centerZ = center.Z;
+                            }
+
                             edges.Add(new EdgeInfo
                             {
                                 Index = edgeIndex,
                                 CurveType = edge.CurveType.ToString(),
                                 Length = length,
-                                IsCircular = edge.CurveType == CurveTypeEnum.kCircleCurve,
-                                IsLinear = edge.CurveType == CurveTypeEnum.kLineSegmentCurve
+                                IsCircular = isCircular,
+                                IsLinear = isLinear,
+                                CenterX = centerX,
+                                CenterY = centerY,
+                                CenterZ = centerZ
                             });
                         }
 
